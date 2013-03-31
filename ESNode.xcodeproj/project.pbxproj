@@ -16,6 +16,11 @@
 		0A61F475170712DD008BDED1 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 0A61F474170712DD008BDED1 /* Default.png */; };
 		0A61F477170712DD008BDED1 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0A61F476170712DD008BDED1 /* Default@2x.png */; };
 		0A61F479170712DD008BDED1 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0A61F478170712DD008BDED1 /* Default-568h@2x.png */; };
+		0A61F4801707137D008BDED1 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A61F47F1707137D008BDED1 /* GLKit.framework */; };
+		0A61F48217071384008BDED1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A61F48117071384008BDED1 /* OpenGLES.framework */; };
+		0A61F4841707138B008BDED1 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A61F4831707138B008BDED1 /* QuartzCore.framework */; };
+		0A61F4871707191E008BDED1 /* ESTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A61F4861707191E008BDED1 /* ESTools.m */; };
+		0A61F49A17072DCB008BDED1 /* ESNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A61F49917072DCB008BDED1 /* ESNode.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +37,13 @@
 		0A61F474170712DD008BDED1 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		0A61F476170712DD008BDED1 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
 		0A61F478170712DD008BDED1 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		0A61F47F1707137D008BDED1 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		0A61F48117071384008BDED1 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		0A61F4831707138B008BDED1 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		0A61F4851707191E008BDED1 /* ESTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESTools.h; sourceTree = "<group>"; };
+		0A61F4861707191E008BDED1 /* ESTools.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ESTools.m; sourceTree = "<group>"; };
+		0A61F49817072DCB008BDED1 /* ESNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESNode.h; sourceTree = "<group>"; };
+		0A61F49917072DCB008BDED1 /* ESNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ESNode.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +51,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A61F4841707138B008BDED1 /* QuartzCore.framework in Frameworks */,
+				0A61F48217071384008BDED1 /* OpenGLES.framework in Frameworks */,
+				0A61F4801707137D008BDED1 /* GLKit.framework in Frameworks */,
 				0A61F463170712DD008BDED1 /* UIKit.framework in Frameworks */,
 				0A61F465170712DD008BDED1 /* Foundation.framework in Frameworks */,
 				0A61F467170712DD008BDED1 /* CoreGraphics.framework in Frameworks */,
@@ -68,6 +83,9 @@
 		0A61F461170712DD008BDED1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				0A61F4831707138B008BDED1 /* QuartzCore.framework */,
+				0A61F48117071384008BDED1 /* OpenGLES.framework */,
+				0A61F47F1707137D008BDED1 /* GLKit.framework */,
 				0A61F462170712DD008BDED1 /* UIKit.framework */,
 				0A61F464170712DD008BDED1 /* Foundation.framework */,
 				0A61F466170712DD008BDED1 /* CoreGraphics.framework */,
@@ -80,6 +98,10 @@
 			children = (
 				0A61F471170712DD008BDED1 /* AppDelegate.h */,
 				0A61F472170712DD008BDED1 /* AppDelegate.m */,
+				0A61F4851707191E008BDED1 /* ESTools.h */,
+				0A61F4861707191E008BDED1 /* ESTools.m */,
+				0A61F49817072DCB008BDED1 /* ESNode.h */,
+				0A61F49917072DCB008BDED1 /* ESNode.m */,
 				0A61F469170712DD008BDED1 /* Supporting Files */,
 			);
 			path = ESNode;
@@ -166,6 +188,8 @@
 			files = (
 				0A61F46F170712DD008BDED1 /* main.m in Sources */,
 				0A61F473170712DD008BDED1 /* AppDelegate.m in Sources */,
+				0A61F4871707191E008BDED1 /* ESTools.m in Sources */,
+				0A61F49A17072DCB008BDED1 /* ESNode.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,6 +262,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ESNode/ESNode-Prefix.pch";
 				INFOPLIST_FILE = "ESNode/ESNode-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -249,6 +274,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ESNode/ESNode-Prefix.pch";
 				INFOPLIST_FILE = "ESNode/ESNode-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -273,6 +299,7 @@
 				0A61F47E170712DD008BDED1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
