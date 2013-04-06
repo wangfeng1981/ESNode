@@ -197,7 +197,7 @@ unsigned int ccNextPOT(unsigned int x)
 			GLfloat tu0Arr[EATLASTEXTURE_MAXSUBTEX*4];
 			int   ttid,ttu0,ttv0,ttu1,ttv1 ;
 			while (!feof(pf)) {
-				fscanf(pf, "%d%*5c%d:%d:%d:%d",&ttid,&ttu0,&ttv0,&ttu1,&ttv1) ;
+				fscanf(pf, "%d%*5c%d:%d:%d:%d\n",&ttid,&ttu0,&ttv0,&ttu1,&ttv1) ;
 				tidArr[numberOfSubtex] = ttid ;
 				tu0Arr[numberOfSubtex*4+0] = ttu0/fwid ;
 				tu0Arr[numberOfSubtex*4+1] = (ttv0+ttv1)/fhei ;//tu0Arr[numberOfSubtex*4+1]+ttv1/fhei ; What a big bug!! Corrected on 2012-04-25.
@@ -206,6 +206,7 @@ unsigned int ccNextPOT(unsigned int x)
 				numberOfSubtex++ ;
 				if( numberOfSubtex == EATLASTEXTURE_MAXSUBTEX )
 					break ;
+                //if( ieof2==-1 ) break ;
 			}
 			fclose(pf) ;
 			pf = NULL ;

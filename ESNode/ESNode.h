@@ -23,7 +23,12 @@ union esVertexP3C4
     GLfloat v[7];
 };
 typedef union esVertexP3C4 esVertexP3C4;
-
+union esVertexP3C4T2
+{
+    struct { float x, y, z, r, g, b, a,s,t ; };
+    GLfloat v[9];
+};
+typedef union esVertexP3C4T2 esVertexP3C4T2;
 
 
 
@@ -56,6 +61,7 @@ typedef union esVertexP3C4 esVertexP3C4;
 -(void)updateAttribute:(GLuint)index size:(GLint)sz type:(GLenum)t normalize:(GLboolean)n stride:(GLsizei)stride1 pointer:(GLvoid*)ptr ;
 -(GLint)uniformLocation:(int)index ;
 -(void)updateUniform:(short)iu byMat4:(GLKMatrix4*)mat4 ;
+-(void)bindTexture0ByTextureId:(GLuint)texid uniformIndex:(short)iu ;
 @end
 
 
@@ -139,6 +145,7 @@ typedef enum ESNodeUserInteractionType ESNodeUserInteractionType;
 -(void)satTimerDuration:(GLfloat)dura1circ circles:(int)ncirc target:(id)tar action:(SEL)act ;
 -(GLKMatrix4*)gatTransformMatrix ;
 -(BOOL)isTransformMatrixChanged ;
+-(void)satTransformMatrix:(GLKMatrix4)mat4 ;
 //timer
 -(void)deleteTimer ;
 -(void)pauseTimer ;
@@ -183,6 +190,9 @@ typedef enum ESRootDeviceType ESRootDeviceType ;
     //Shaders
     esProgram* _program3d ;
     esProgram* _program2d ;
+    
+    //Ortho root
+    ESNode* orthoRoot ;
 }
 @property(assign,nonatomic)GLKVector4 lookTarget ;
 @property(assign,nonatomic)GLKVector4 eyePosition ;
@@ -193,6 +203,7 @@ typedef enum ESRootDeviceType ESRootDeviceType ;
 @property(readonly,nonatomic)BOOL       isRetina ;
 @property(readonly,nonatomic)esProgram* _program3d ;
 @property(readonly,nonatomic)esProgram* _program2d ;
+@property(readonly,nonatomic)ESNode* orthoRoot ;
 
 +(ESRoot*)currentRoot ;
 -(id)initWithTag:(int)tag1 andEyePosi:(GLKVector4)veye andTarPosi:(GLKVector4)vtar andNear:(GLfloat)n andFar:(GLfloat)f
@@ -210,6 +221,17 @@ screenLandscape:(BOOL)landscape ;
 -(id)initWithTag:(int)tag1 andSize:(GLfloat)sz singleColor:(GLKVector4)color1 ;
 -(id)initWithTag:(int)tag1 andSize:(GLfloat)sz colors:(GLKVector4*)color24 ;
 
+@end
+
+//=============================================================
+#pragma mark - ESSimpleSprite
+@interface ESSimpleSprite:ESNode
+{
+    esVertexP3C4T2 vertices[4] ;
+    esTexture* estexture ;
+}
+@property(retain,nonatomic)esTexture* estexture ;
+-(id)initWithTag:(int)tag1 frame:(CGRect)frm texture:(esTexture*)estexture1 ;
 @end
 
 

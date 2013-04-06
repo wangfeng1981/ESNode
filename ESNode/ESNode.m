@@ -232,6 +232,12 @@ void es2Matrix4RotateXYZ(GLKMatrix4* mat4,GLfloat rollFir,GLfloat yawSec,GLfloat
 {
 	glUniformMatrix4fv(unifLocation[iu], 1, GL_FALSE, mat4->m) ;
 }
+-(void)bindTexture0ByTextureId:(GLuint)texid uniformIndex:(short)iu
+{
+    glActiveTexture(GL_TEXTURE0) ;
+    glBindTexture(GL_TEXTURE_2D, texid) ;
+    glUniform1i([self uniformLocation:iu], 0) ;
+} 
 @end
 
 
@@ -446,7 +452,6 @@ void es2Matrix4RotateXYZ(GLKMatrix4* mat4,GLfloat rollFir,GLfloat yawSec,GLfloat
         [self.nextSiblingR update:timeinter] ;
 		if( hasRemovedFromParent ) self.nextSiblingR= nil ;
 	}//2012-11-02
-    
 }
 
 -(void)updateMeAndChildren:(GLfloat)timeinter
@@ -570,6 +575,11 @@ void es2Matrix4RotateXYZ(GLKMatrix4* mat4,GLfloat rollFir,GLfloat yawSec,GLfloat
 	return &transformMatrix ;
 }
 
+
+-(void)satTransformMatrix:(GLKMatrix4)mat4
+{//---------------------------------------
+    transformMatrix = mat4 ;
+}
 -(BOOL)isTransformMatrixChanged
 {//---------------------------------------
     if( needUpdateMatrix[0] || needUpdateMatrix[1] || needUpdateMatrix[2]
@@ -577,6 +587,7 @@ void es2Matrix4RotateXYZ(GLKMatrix4* mat4,GLfloat rollFir,GLfloat yawSec,GLfloat
         return YES ;
     else return NO ;
 }
+
 
 
 -(void)satTimerDuration:(GLfloat)dura1circ circles:(int)ncirc target:(id)tar action:(SEL)act
@@ -695,7 +706,7 @@ static ESRoot* s_currentESRoot = nil ;
 @implementation ESRoot
 @synthesize	lookTarget ,eyePosition ;
 @synthesize widthpixel,heightpixel,deviceType,screenLandscape,isRetina ;
-@synthesize _program2d,_program3d ;
+@synthesize _program2d,_program3d,orthoRoot ;
 
 
 +(ESRoot*)currentRoot
@@ -706,6 +717,7 @@ static ESRoot* s_currentESRoot = nil ;
 {
 	if( s_currentESRoot==self )
 		s_currentESRoot = nil ;
+    ESTOOLS_RELEASE(orthoRoot) ;
     ESTOOLS_RELEASE(_program2d) ;
     ESTOOLS_RELEASE(_program3d) ;
 	[super dealloc] ;
@@ -775,6 +787,21 @@ static ESRoot* s_currentESRoot = nil ;
         
         _program3d = [[esProgram alloc] initWithVshString:strVertShader3d andFshString:strFragShader3d andAttrnameArray:attrArray1 andUnifnameArray:unifArray1] ;
         
+        static GLchar strVsh2d[]="attribute vec4 a_position;attribute vec4 a_color;attribute vec2 a_coor0;uniform mat4 u_transform;varying vec2 v_coor0;varying vec4 v_color;void main(){gl_Position = u_transform*a_position ;v_coor0 = a_coor0 ;v_color = a_color ;}";
+        static GLchar strFsh2d[]="uniform sampler2D u_texture ;varying mediump vec2 v_coor0 ;varying lowp vec4 v_color ;void main(){gl_FragColor=texture2D(u_texture,v_coor0)*v_color;}";
+        NSArray* attrs2 = [NSArray arrayWithObjects:@"a_position",@"a_color",@"a_coor0", nil] ;
+        NSArray* unifs2 = [NSArray arrayWithObjects:@"u_transform",@"u_texture", nil] ;
+        _program2d = [[esProgram alloc] initWithVshString:strVsh2d andFshString:strFsh2d andAttrnameArray:attrs2 andUnifnameArray:unifs2] ;
+        
+        
+        //setup OpenGL
+        glEnable(GL_CULL_FACE) ;
+        
+        //setup ortho root
+        orthoRoot = [[ESNode alloc] initWithTag:0] ;
+        GLKMatrix4 orthoMat4 = GLKMatrix4MakeOrtho(0.f, self.widthpixel, 0.f, self.heightpixel, 0.0f, 10.f) ;
+        [orthoRoot satTransformMatrix:orthoMat4] ;
+        
 	}
 	return self ;
 }
@@ -804,6 +831,12 @@ static ESRoot* s_currentESRoot = nil ;
     }
 }
 
+-(void)updateMeAndChildren:(GLfloat)timeinter
+{
+    [super updateMeAndChildren:timeinter] ;
+    if( orthoRoot.firstChildR )
+        [orthoRoot.firstChildR update:timeinter] ;
+}
 
 -(void)draw
 {
@@ -814,9 +847,10 @@ static ESRoot* s_currentESRoot = nil ;
 		[firstChildR draw] ;
 	
 	// use ortho projection for 2D UI Scence.
-	// the movTransform matrix is used for ortho matrix. GLfloat
 	glDisable(GL_DEPTH_TEST) ;
-	
+    if( orthoRoot.firstChildR )
+        [orthoRoot.firstChildR draw] ;
+    
     //
     needUpdateMatrix[0]=NO ;
 }
@@ -883,5 +917,73 @@ const GLubyte c_cubeIndices[36] =
     [super drawMeAndChildren] ;
 }
 @end
+
+//=============================================================
+#pragma mark - ESSimpleSprite
+@implementation ESSimpleSprite
+@synthesize estexture ;
+-(void)dealloc
+{
+    ESTOOLS_RELEASE(estexture) ;
+    [super dealloc] ;
+}
+-(id)initWithTag:(int)tag1 frame:(CGRect)frm texture:(esTexture*)estexture1 
+{
+    self = [super initWithTag:tag1] ;
+    if( self )
+    {
+        vertices[0].x = frm.origin.x ;
+        vertices[0].y = frm.origin.y ;
+        vertices[1].x = frm.origin.x+frm.size.width ;
+        vertices[1].y = frm.origin.y ;
+        vertices[2].x = frm.origin.x ;
+        vertices[2].y = frm.origin.y+frm.size.height ;
+        vertices[3].x = vertices[1].x ;
+        vertices[3].y = vertices[2].y ;
+        self.estexture = estexture1 ;
+        for (int i = 0; i<4; i++) {
+            vertices[i].z = 0.f ;
+            vertices[i].r=vertices[i].g=vertices[i].b=vertices[i].a=1.f;
+        }
+    }
+    return self ;
+}
+-(void)setEstexture:(esTexture *)estexture1
+{
+    if( estexture == estexture1 ) return ;
+    ESTOOLS_RELEASE(estexture) ;
+    if( estexture1 )
+    {
+        estexture = [estexture1 retain] ;
+        GLfloat* c8 = [estexture getCoords8] ;
+        vertices[0].s = c8[0] ;
+        vertices[0].t = c8[1] ;
+        vertices[1].s = c8[2] ;
+        vertices[1].t = c8[3] ;
+        vertices[2].s = c8[4] ;
+        vertices[2].t = c8[5] ;
+        vertices[3].s = c8[6] ;
+        vertices[3].t = c8[7] ;
+    }
+}
+-(void)drawMeAndChildren
+{
+    if( self.estexture )
+    {
+        esProgram* program1 = [ESRoot currentRoot]._program2d ;
+        if( program1 )
+        {
+            [program1 useProgram] ;
+            [program1 updateUniform:0 byMat4:&transformMatrix] ;
+            [program1 bindTexture0ByTextureId:self.estexture.etexture.textureid uniformIndex:1] ;
+            [program1 updateAttribute:0 size:3 type:GL_FLOAT normalize:0 stride:9*sizeof(GLfloat) pointer:vertices] ;
+            [program1 updateAttribute:1 size:4 type:GL_FLOAT normalize:0 stride:9*sizeof(GLfloat) pointer:&(vertices[0].r)] ;
+            [program1 updateAttribute:2 size:2 type:GL_FLOAT normalize:0 stride:9*sizeof(GLfloat) pointer:&(vertices[0].s)] ;
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4) ;
+        }
+    }
+    [super drawMeAndChildren] ;
+}
+@end 
 
 

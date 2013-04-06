@@ -81,9 +81,9 @@
     if( _esRoot==nil )
     {
         _esRoot = [[ESRoot alloc] initWithTag:1 andEyePosi:GLKVector4Make(0, 20, 20, 1) andTarPosi:GLKVector4Make(0, 0, 0, 1) andNear:0.1f andFar:1000.f screenLandscape:NO] ;
-        esTexture* texture1 = [esTexture createByName:@"texture1"] ;
-        NSLog(@"textureid %d",texture1.etexture.textureid) ;
-        NSLog(@"default 3d shader programid %d",_esRoot._program3d.iprogram) ;
+        esAtlasTexture* atlas1 = [esAtlasTexture create:@"tex1"] ;
+        NSLog(@"textureid %d and numSubtex:%d",atlas1.etexture.textureid,atlas1.numberOfSubtex) ;
+        NSLog(@"default 3d shader id:%d\n default 2d shader id:%d",_esRoot._program3d.iprogram,_esRoot._program2d.iprogram) ;
         
         GLKVector4 colors[24] ;
         {
@@ -120,6 +120,10 @@
         ES3dCube* cube = [[[ES3dCube alloc] initWithTag:101 andSize:10.f colors:colors] autorelease] ;
         [cube satTimerDuration:0.01f circles:ESNODE_TIMER_INFINITE_CIRCLE target:self action:@selector(onESNodeTimer:)] ;
         [_esRoot addChild:cube] ;
+        
+        ESSimpleSprite* spr1 = [[[ESSimpleSprite alloc] initWithTag:102 frame:CGRectMake(0, 0, 64 , 64) texture:[atlas1 buildESTextureById:7]] autorelease];
+        [spr1 satTimerDuration:0.1f circles:ESNODE_TIMER_INFINITE_CIRCLE target:self action:@selector(onESNodeTimer:)] ;
+        [_esRoot.orthoRoot addChild:spr1] ;
     }
     [_esRoot update:timeinter] ;
     [_esRoot draw] ;
@@ -157,10 +161,17 @@
 {
     static GLfloat s_deg = 0.f ;
     ESNode* node = (ESNode*)sender ;
-    if( node.tag=101 )
+    if( node.tag==101 )
     {
         node.yawDeg = s_deg ;
         s_deg++ ;
+    }
+    if( node.tag==102)
+    {
+        static GLfloat s_x = 0.f ;
+        node.center = GLKVector4Make(s_x, node.center.y, 0, 1);
+        s_x += 1.f ;
+        if( s_x > 320.f ) s_x = 0.f ;
     }
     
 }
