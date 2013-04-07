@@ -117,13 +117,29 @@
             colors[22] = colors[20] ;
             colors[23] = colors[20] ;
         }
-        ES3dCube* cube = [[[ES3dCube alloc] initWithTag:101 andSize:10.f colors:colors] autorelease] ;
+        ES3dCube* cube = [[[ES3dCube alloc] initWithTag:101 andSize:2.f colors:colors] autorelease] ;
         [cube satTimerDuration:0.01f circles:ESNODE_TIMER_INFINITE_CIRCLE target:self action:@selector(onESNodeTimer:)] ;
         [_esRoot addChild:cube] ;
         
-        ESSimpleSprite* spr1 = [[[ESSimpleSprite alloc] initWithTag:102 frame:CGRectMake(0, 0, 64 , 64) texture:[atlas1 buildESTextureById:7]] autorelease];
-        [spr1 satTimerDuration:0.1f circles:ESNODE_TIMER_INFINITE_CIRCLE target:self action:@selector(onESNodeTimer:)] ;
+        ES3dCube* cube2 = [[[ES3dCube alloc] initWithTag:102 andSize:5.f colors:colors] autorelease] ;
+        [cube addChild:cube2] ;
+        esAnimation* anim = [[[esAnimation alloc] init] autorelease];
+        [anim.keysArray addObject:[esAnimKeyFrame createx:0 y:-10.f z:0 xs:1 ys:1 zs:1 alpha:1 roll:0 yaw:0 pitch:0 duration:0]];
+        [anim.keysArray addObject:[esAnimKeyFrame createx:0 y:10.f z:0 xs:1 ys:1 zs:1 alpha:1 roll:0 yaw:0 pitch:360 duration:2]];
+        [cube2 satAnim:anim target:self beforeAnimStartAction:@selector(onBeforeAnim:) afterAnimEndAction:@selector(onAfterAnim:) start:0] ;
+        
+        ESSimpleSprite* spr1 = [[[ESSimpleSprite alloc] initWithTag:200 frame:CGRectMake(0, 0, 64 , 64) texture:[atlas1 buildESTextureById:7]] autorelease];
+        //[spr1 satTimerDuration:0.1f circles:ESNODE_TIMER_INFINITE_CIRCLE target:self action:@selector(onESNodeTimer:)] ;
         [_esRoot.orthoRoot addChild:spr1] ;
+        
+        esAnimation* anim200 = [[[esAnimation alloc] init] autorelease];
+        [anim200.keysArray addObject:[esAnimKeyFrame createx:0 y:0 z:0 xs:1 ys:1 zs:1 alpha:0.1 roll:0 yaw:0 pitch:0 duration:0]];
+        [anim200.keysArray addObject:[esAnimKeyFrame createx:100 y:200 z:0 xs:1 ys:1 zs:1 alpha:1 roll:360 yaw:0 pitch:0 duration:10]];
+        [spr1 satAnim:anim200 target:self beforeAnimStartAction:@selector(onBeforeAnim:) afterAnimEndAction:@selector(onAfterAnim:) start:0] ;
+        
+        ESSimpleButton* button1 = [[[ESSimpleButton alloc] initWithTag:300 frame:CGRectMake(320-64, 480-64, 64, 64) texture:[atlas1 buildESTextureById:9] target:self action:@selector(onButtonTapped:)] autorelease] ;
+        [_esRoot.orthoRoot addChild:button1] ;
+        
     }
     [_esRoot update:timeinter] ;
     [_esRoot draw] ;
@@ -166,14 +182,29 @@
         node.yawDeg = s_deg ;
         s_deg++ ;
     }
-    if( node.tag==102)
+}
+-(void)onBeforeAnim:(id)sender
+{
+    //ESNode* node = (ESNode*)sender ;
+    //NSLog(@"%d bef anim",node.tag) ;
+}
+-(void)onAfterAnim:(id)sender
+{
+    ESNode* node = (ESNode*)sender ;
+    //NSLog(@"%d aft anim",node.tag) ;
+    
+    if( node.tag==102 )
     {
-        static GLfloat s_x = 0.f ;
-        node.center = GLKVector4Make(s_x, node.center.y, 0, 1);
-        s_x += 1.f ;
-        if( s_x > 320.f ) s_x = 0.f ;
+        esAnimation* anim = [[[esAnimation alloc] init] autorelease];
+        [anim.keysArray addObject:[esAnimKeyFrame createx:0 y:-10.f z:0 xs:1 ys:1 zs:1 alpha:1 roll:0 yaw:0 pitch:0 duration:0]];
+        [anim.keysArray addObject:[esAnimKeyFrame createx:0 y:10.f z:0 xs:3 ys:1 zs:1 alpha:0.1 roll:360 yaw:0 pitch:0 duration:5]];
+        [node satAnim:anim target:self beforeAnimStartAction:@selector(onBeforeAnim:) afterAnimEndAction:@selector(onAfterAnim:) start:0] ;
     }
     
 }
-
+-(void)onButtonTapped:(id)sender
+{
+    ESNode* node = (ESNode*)sender ;
+    NSLog(@"button %d tapped.",node.tag) ;
+}
 @end

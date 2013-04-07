@@ -34,211 +34,6 @@ void es2Matrix4RotateXYZ(GLKMatrix4* mat4,GLfloat rollFir,GLfloat yawSec,GLfloat
 }
 
 
-//=============================================================
-#pragma mark - GL program and shader
-
-@implementation esProgram
-@synthesize iprogram ;
--(void)dealloc
-{
-	if( iprogram )
-	{
-		glDeleteProgram(iprogram) ;
-		iprogram = 0 ;
-	}
-	if( attrNameArray )
-	{
-		[attrNameArray release] ;
-		attrNameArray =nil ;
-	}
-	if( unifNameArray )
-	{
-		[unifNameArray release] ;
-		unifNameArray = nil ;
-	}
-	[super dealloc] ;
-}
-
-// fshfilename and vshfilename are none have extname.
--(id)initWithVsh:(NSString*)vshfilename andFsh:(NSString*)fshfilename andAttrnameArray:(NSArray*)attrArr andUnifnameArray:(NSArray*)unifArr
-{
-	self = [super init] ;
-	if( self )
-	{
-		iprogram = glCreateProgram() ;
-		NSString* vfullname = [[NSBundle mainBundle] pathForResource:vshfilename ofType:@"vsh"] ;
-		NSString* ffullname = [[NSBundle mainBundle] pathForResource:fshfilename ofType:@"fsh"] ;
-		GLuint ivsh,ifsh ;
-		if( [self compileShader:&ivsh type:GL_VERTEX_SHADER file:vfullname] )
-		{
-			if( [self compileShader:&ifsh type:GL_FRAGMENT_SHADER file:ffullname] )
-			{
-				glAttachShader(iprogram, ivsh) ;
-				glAttachShader(iprogram, ifsh) ;
-				
-				attrNameArray = [attrArr retain] ;
-				unifNameArray = [unifArr retain] ;
-				
-				for (GLuint i = 0 ; i<[attrNameArray count]; i++) {
-					glBindAttribLocation(iprogram, i, [(NSString*)[attrNameArray objectAtIndex:i] UTF8String] ) ;
-				}
-				
-				//link program.
-				if( [self linkProgram] )
-				{
-					numUniform   = MIN(8,[unifNameArray count]) ;
-					for (GLint i = 0 ; i<numUniform ; i++) {
-						unifLocation[i] = glGetUniformLocation(iprogram,[(NSString*)[unifNameArray objectAtIndex:i] UTF8String]) ;
-					}
-				}else
-				{
-					if( iprogram )
-					{
-						glDeleteProgram(iprogram) ;
-						iprogram = 0 ;
-                        NSLog(@"link program failed."); 
-					}
-				}
-				if( ivsh )
-					glDeleteShader(ivsh) ;
-				if( ifsh )
-					glDeleteShader(ifsh) ;
-			}else {
-				NSLog(@"Failed compile frag shader:%@",ffullname) ;
-			}
-		}else {
-			NSLog(@"Failed compile vert shader:%@",vfullname) ;
-		}
-	}
-	return self ;
-}
-
--(id)initWithVshString:(const GLchar*)vstring andFshString:(const GLchar*)fstring andAttrnameArray:(NSArray*)attrArr andUnifnameArray:(NSArray*)unifArr
-{
-	self = [super init] ;
-	if( self )
-	{
-		iprogram = glCreateProgram() ;
-		GLuint ivsh,ifsh ;
-		if( [self compileShader:&ivsh type:GL_VERTEX_SHADER text:vstring] )
-		{
-			if( [self compileShader:&ifsh type:GL_FRAGMENT_SHADER text:fstring] )
-			{
-				glAttachShader(iprogram, ivsh) ;
-				glAttachShader(iprogram, ifsh) ;
-				
-				attrNameArray = [attrArr retain] ;
-				unifNameArray = [unifArr retain] ;
-				
-				for (GLuint i = 0 ; i<[attrNameArray count]; i++) {
-					glBindAttribLocation(iprogram, i, [(NSString*)[attrNameArray objectAtIndex:i] UTF8String] ) ;
-				}
-				
-				//link program.
-				if( [self linkProgram] )
-				{
-					numUniform   = MIN(8,[unifNameArray count]) ;
-					for (GLint i = 0 ; i<numUniform ; i++) {
-						unifLocation[i] = glGetUniformLocation(iprogram,[(NSString*)[unifNameArray objectAtIndex:i] UTF8String]) ;
-					}
-				}else
-				{
-					if( iprogram )
-					{
-						glDeleteProgram(iprogram) ;
-						iprogram = 0 ;
-                        NSLog(@"link program failed."); 
-					}
-				}
-				if( ivsh )
-					glDeleteShader(ivsh) ;
-				if( ifsh )
-					glDeleteShader(ifsh) ;
-			}else {
-				NSLog(@"Failed compile frag shader:%@",@"file in memory.") ;
-			}
-		}else {
-			NSLog(@"Failed compile vert shader:%@",@"file in memory.") ;
-		}
-	}
-	return self ;
-}
--(BOOL)compileShader:(GLuint*)ish type:(GLenum)type text:(const GLchar*)carr
-{
-	const GLchar* source= carr ;
-	if( source==NULL )
-	{
-		NSLog(@"Failed to load shader file:%@.",@"file in memory.") ;
-		return NO ;
-	}
-	*ish = glCreateShader(type) ;
-	glShaderSource(*ish, 1, &source, NULL) ;
-	glCompileShader(*ish) ;
-#if defined(DEBUG)
-    GLint logLength;
-    glGetShaderiv(*ish, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0)
-    {
-        GLchar *log = (GLchar *)malloc(logLength);
-        glGetShaderInfoLog(*ish, logLength, &logLength, log);
-        NSLog(@"Shader compile log:\n%s", log);
-        free(log);
-    }
-#endif
-	GLint status  ;
-	glGetShaderiv(*ish, GL_COMPILE_STATUS, &status) ;
-	if( status==0 )
-	{
-		glDeleteShader(*ish) ;
-		NSLog(@"Failed to compile shader:%@.",@"file in memory.") ;
-		return NO ;
-	}
-	return YES ;
-}
--(BOOL)compileShader:(GLuint*)ish type:(GLenum)type file:(NSString*)file
-{
-	return [self compileShader:ish type:type text:(GLchar*)[[NSString stringWithContentsOfFile:file encoding:NSUTF8StringEncoding error:nil] UTF8String]] ;
-}
--(BOOL)linkProgram
-{
-	GLint status ;
-	glLinkProgram(iprogram) ;
-	glGetProgramiv(iprogram, GL_LINK_STATUS, &status) ;
-	if( status==0 )
-	{
-		NSLog(@"Failed to Link Program.") ;
-		return NO ;
-	}
-	return YES ;
-}
--(void)useProgram
-{
-	glUseProgram(iprogram);
-}
-//-(void)updateUniform:(short)iu byMat4:(es2Matrix4*)m
-//{
-//	glUniformMatrix4fv(unifLocation[iu], 1, GL_FALSE, m->mat) ;
-//}
--(void)updateAttribute:(GLuint)index size:(GLint)sz type:(GLenum)t normalize:(GLboolean)n stride:(GLsizei)stride1 pointer:(GLvoid*)ptr
-{
-	glEnableVertexAttribArray(index) ;
-	glVertexAttribPointer(index, sz, t, n, stride1, ptr) ;
-}
--(GLint)uniformLocation:(int)index
-{
-	return unifLocation[index] ;
-}
--(void)updateUniform:(short)iu byMat4:(GLKMatrix4*)mat4
-{
-	glUniformMatrix4fv(unifLocation[iu], 1, GL_FALSE, mat4->m) ;
-}
--(void)bindTexture0ByTextureId:(GLuint)texid uniformIndex:(short)iu
-{
-    glActiveTexture(GL_TEXTURE0) ;
-    glBindTexture(GL_TEXTURE_2D, texid) ;
-    glUniform1i([self uniformLocation:iu], 0) ;
-} 
-@end
 
 
 
@@ -250,8 +45,9 @@ void es2Matrix4RotateXYZ(GLKMatrix4* mat4,GLfloat rollFir,GLfloat yawSec,GLfloat
 @implementation ESNode
 //assign properties
 @synthesize tag, displayed, userInteraction , hasRemovedFromParent ;
-@synthesize center, rollDeg, yawDeg, pitchDeg, xScale, yScale, zScale ;
+@synthesize center, rollDeg, yawDeg, pitchDeg, xScale, yScale, zScale,alpha ;
 @synthesize parentNodeA,prevSiblingA ;
+@synthesize animPaused ;
 
 //retain properties
 @synthesize firstChildR , nextSiblingR ;
@@ -267,16 +63,10 @@ void es2Matrix4RotateXYZ(GLKMatrix4* mat4,GLfloat rollFir,GLfloat yawSec,GLfloat
     timerTarget = nil ;
     
     //release children
-	if( firstChildR )
-    {
-        [firstChildR release] ;
-        firstChildR = nil ;
-    }
-	if( nextSiblingR )
-	{
-		[nextSiblingR release] ;
-		nextSiblingR = nil ;
-	}
+    ESTOOLS_RELEASE(firstChildR) ;
+    ESTOOLS_RELEASE(nextSiblingR) ;
+    //anim
+    ESTOOLS_RELEASE(animation) ;
 	[super dealloc] ;
 }
 -(id)initWithTag:(int)tag1
@@ -294,6 +84,7 @@ void es2Matrix4RotateXYZ(GLKMatrix4* mat4,GLfloat rollFir,GLfloat yawSec,GLfloat
 		rollDeg = yawDeg = pitchDeg = 0.f ;
 		center = GLKVector4Make(0, 0, 0, 1) ;
         xScale = yScale = zScale = 1.f ;
+        alpha = 1.f ;
         
         needUpdateMatrix[0]=needUpdateMatrix[1]=needUpdateMatrix[2]=YES;
         movMatrix = GLKMatrix4Identity ;
@@ -304,6 +95,8 @@ void es2Matrix4RotateXYZ(GLKMatrix4* mat4,GLfloat rollFir,GLfloat yawSec,GLfloat
         
 		timerState = ESNODE_TIMER_NONE ;
         timerTarget = nil ;
+        
+        userInteraction = ESNodeUserInteractionNone ;
 	}
 	return self ;
 }
@@ -446,6 +239,29 @@ void es2Matrix4RotateXYZ(GLKMatrix4* mat4,GLfloat rollFir,GLfloat yawSec,GLfloat
             }
         }
 	}
+    //anim
+    if( animation && animPaused == NO )
+    {
+        if( animDuration < 0.001f && animDuration+timeinter >= 0.001f && animTarget )
+            [animTarget performSelector:animBeforeAction withObject:self] ;
+        BOOL isAnimFinished = NO ;
+        [animation update:animDuration finished:&isAnimFinished]; 
+        animDuration += timeinter ;
+        self.center = GLKVector4Make(animation.x, animation.y, animation.z, 1.f) ;
+        self.xScale = animation.xs ;
+        self.yScale = animation.ys ;
+        self.zScale = animation.zs ;
+        self.rollDeg = animation.roll ;
+        self.yawDeg = animation.yaw ;
+        self.pitchDeg = animation.pitch ;
+        self.alpha = animation.alpha ;
+        if( isAnimFinished )
+        {
+            ESTOOLS_RELEASE(animation) ;
+            if( animTarget )
+                [animTarget performSelector:animAfterAction withObject:self] ;
+        }
+    }
 	[self updateMeAndChildren:timeinter] ;
 	if( self.nextSiblingR)
 	{
@@ -548,8 +364,8 @@ void es2Matrix4RotateXYZ(GLKMatrix4* mat4,GLfloat rollFir,GLfloat yawSec,GLfloat
     //V'= Mrot x Mmov x V : Mov first , then Rot.
     if( needUpdateMatrix[3] )
     {// mM = scl x rot x mov
-        modMatrix = GLKMatrix4Multiply(sclMatrix, rotMatrix) ;
-        modMatrix = GLKMatrix4Multiply(modMatrix, movMatrix) ;
+        modMatrix = GLKMatrix4Multiply( rotMatrix, sclMatrix ) ;
+        modMatrix = GLKMatrix4Multiply( movMatrix, modMatrix) ;
     }
 	if( parentNodeA )
     {
@@ -615,16 +431,30 @@ void es2Matrix4RotateXYZ(GLKMatrix4* mat4,GLfloat rollFir,GLfloat yawSec,GLfloat
     if( timerState== ESNODE_TIMER_PAUSE )
         timerState = ESNODE_TIMER_GOING ;
 }
+//animation
+-(void)satAnim:(esAnimation*)anim target:(id)tar beforeAnimStartAction:(SEL)befAction afterAnimEndAction:(SEL)aftAction start:(GLfloat)start
+{
+    if( anim != animation )
+    {
+        ESTOOLS_RELEASE(animation) ;
+        animation = [anim retain] ;
+    }
+    animDuration = start ;
+    animTarget = tar ;
+    animBeforeAction = befAction ;
+    animAfterAction = aftAction ;
+    animPaused = NO ;
+}
 
 //UserInteraction
 -(BOOL)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if( userInteraction==ESNodeUserInteractionNone ) return NO;
     if( self.nextSiblingR )
     {
         if( [self.nextSiblingR touchesBegan:touches withEvent:event] )
             return YES ;
     }
+    if( userInteraction==ESNodeUserInteractionNone ) return NO;
     if( userInteraction==ESNodeUserInteractionSelfAndChildren || userInteraction==ESNodeUserInteractionChildrenOnly )
     {
         if( self.firstChildR )
@@ -641,12 +471,12 @@ void es2Matrix4RotateXYZ(GLKMatrix4* mat4,GLfloat rollFir,GLfloat yawSec,GLfloat
 }
 -(BOOL)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if( userInteraction==ESNodeUserInteractionNone ) return NO;
     if( self.nextSiblingR )
     {
         if( [self.nextSiblingR touchesMoved:touches withEvent:event] )
             return YES ;
     }
+    if( userInteraction==ESNodeUserInteractionNone ) return NO;
     if( userInteraction==ESNodeUserInteractionSelfAndChildren || userInteraction==ESNodeUserInteractionChildrenOnly )
     {
         if( self.firstChildR )
@@ -663,12 +493,12 @@ void es2Matrix4RotateXYZ(GLKMatrix4* mat4,GLfloat rollFir,GLfloat yawSec,GLfloat
 }
 -(BOOL)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if( userInteraction==ESNodeUserInteractionNone ) return NO;
     if( self.nextSiblingR )
     {
         if( [self.nextSiblingR touchesEnded:touches withEvent:event] )
             return YES ;
     }
+    if( userInteraction==ESNodeUserInteractionNone ) return NO;
     if( userInteraction==ESNodeUserInteractionSelfAndChildren || userInteraction==ESNodeUserInteractionChildrenOnly )
     {
         if( self.firstChildR )
@@ -695,6 +525,18 @@ void es2Matrix4RotateXYZ(GLKMatrix4* mat4,GLfloat rollFir,GLfloat yawSec,GLfloat
 -(BOOL)overWriteTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
     return NO ;
+}
+//center location
+-(CGPoint)centerInRoot 
+{
+    CGPoint pt = CGPointMake(0, 0) ;
+    ESNode* c = self ;
+    while (c.parentNodeA) {
+        pt.x += c.center.x ;
+        pt.y += c.center.y ;
+        c = c.parentNodeA ;
+    }
+    return pt ;
 }
 @end
 
@@ -772,13 +614,6 @@ static ESRoot* s_currentESRoot = nil ;
         //projection matrix
         rotMatrix = GLKMatrix4MakePerspective(1.04f, widthpixel/heightpixel, znear, zfar) ;
         
-        //default shaders
-        //NSArray* attrArray1 = [NSArray arrayWithObjects:@"a_position",@"a_color", nil] ;
-        //NSArray* unifArray1 = [NSArray arrayWithObjects:@"u_transformMatrix", nil] ;
-        
-        //static GLchar strVertShader3d[] = "attribute vec4 a_position;attribute vec4 a_color;varying vec4 v_color;uniform mat4 u_transformMatrix;void main(){gl_Position=u_transformMatrix*a_position;v_color=a_color;}" ;
-        //static GLchar strFragShader3d[] = "varying lowp vec4 v_color;void main(){gl_FragColor=v_color;}" ;
-        
         NSArray* attrArray1 = [NSArray arrayWithObjects:@"a_position",@"a_color", nil] ;
         NSArray* unifArray1 = [NSArray arrayWithObjects:@"u_trans", nil] ;
         
@@ -796,12 +631,16 @@ static ESRoot* s_currentESRoot = nil ;
         
         //setup OpenGL
         glEnable(GL_CULL_FACE) ;
+        glEnable(GL_BLEND) ;
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) ;
         
         //setup ortho root
         orthoRoot = [[ESNode alloc] initWithTag:0] ;
-        GLKMatrix4 orthoMat4 = GLKMatrix4MakeOrtho(0.f, self.widthpixel, 0.f, self.heightpixel, 0.0f, 10.f) ;
+        GLKMatrix4 orthoMat4 = GLKMatrix4MakeOrtho(0, self.widthpixel, 0, self.heightpixel, 0.0f, 10.f) ;
         [orthoRoot satTransformMatrix:orthoMat4] ;
         
+        //userinteraction
+        self.userInteraction = ESNodeUserInteractionSelfAndChildren ;
 	}
 	return self ;
 }
@@ -854,7 +693,64 @@ static ESRoot* s_currentESRoot = nil ;
     //
     needUpdateMatrix[0]=NO ;
 }
-
+//UserInteraction
+-(BOOL)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if( userInteraction==ESNodeUserInteractionSelfAndChildren || userInteraction==ESNodeUserInteractionChildrenOnly )
+    {
+        if( self.firstChildR )
+        {
+            if( [self.firstChildR touchesBegan:touches withEvent:event] )
+                return YES ;
+        }
+        if( self.orthoRoot.firstChildR )
+            if( [self.orthoRoot.firstChildR touchesBegan:touches withEvent:event])
+                return YES ;
+    }
+    if( userInteraction==ESNodeUserInteractionSelfOnly || userInteraction==ESNodeUserInteractionSelfAndChildren )
+    {
+        return [self overWriteTouchesBegan:touches withEvent:event] ;
+    }
+    return NO;
+}
+-(BOOL)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if( userInteraction==ESNodeUserInteractionSelfAndChildren || userInteraction==ESNodeUserInteractionChildrenOnly )
+    {
+        if( self.firstChildR )
+        {
+            if( [self.firstChildR touchesMoved:touches withEvent:event] )
+                return YES ;
+        }
+        if( self.orthoRoot.firstChildR )
+            if( [self.orthoRoot.firstChildR touchesMoved:touches withEvent:event])
+                return YES ;
+    }
+    if( userInteraction==ESNodeUserInteractionSelfOnly || userInteraction==ESNodeUserInteractionSelfAndChildren )
+    {
+        return [self overWriteTouchesMoved:touches withEvent:event] ;
+    }
+    return NO;
+}
+-(BOOL)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if( userInteraction==ESNodeUserInteractionSelfAndChildren || userInteraction==ESNodeUserInteractionChildrenOnly )
+    {
+        if( self.firstChildR )
+        {
+            if( [self.firstChildR touchesEnded:touches withEvent:event] )
+                return YES ;
+        }
+        if( self.orthoRoot.firstChildR )
+            if( [self.orthoRoot.firstChildR touchesEnded:touches withEvent:event])
+                return YES ;
+    }
+    if( userInteraction==ESNodeUserInteractionSelfOnly || userInteraction==ESNodeUserInteractionSelfAndChildren )
+    {
+        return [self overWriteTouchesEnded:touches withEvent:event] ;
+    }
+    return NO;
+}
 @end
 
 
@@ -916,6 +812,13 @@ const GLubyte c_cubeIndices[36] =
     
     [super drawMeAndChildren] ;
 }
+-(void)setAlpha:(GLfloat)alpha1
+{
+    alpha = alpha1 ;
+    for (int i = 0; i<24 ; i++) {
+        vertices[i].a = alpha ;
+    }
+}
 @end
 
 //=============================================================
@@ -932,12 +835,12 @@ const GLubyte c_cubeIndices[36] =
     self = [super initWithTag:tag1] ;
     if( self )
     {
-        vertices[0].x = frm.origin.x ;
-        vertices[0].y = frm.origin.y ;
-        vertices[1].x = frm.origin.x+frm.size.width ;
-        vertices[1].y = frm.origin.y ;
-        vertices[2].x = frm.origin.x ;
-        vertices[2].y = frm.origin.y+frm.size.height ;
+        vertices[0].x = -frm.size.width/2.f ;
+        vertices[0].y = -frm.size.height/2.f ;
+        vertices[1].x =  frm.size.width/2.f ;
+        vertices[1].y = vertices[0].y ;
+        vertices[2].x = vertices[0].x ;
+        vertices[2].y = frm.size.height/2.f ;
         vertices[3].x = vertices[1].x ;
         vertices[3].y = vertices[2].y ;
         self.estexture = estexture1 ;
@@ -945,6 +848,7 @@ const GLubyte c_cubeIndices[36] =
             vertices[i].z = 0.f ;
             vertices[i].r=vertices[i].g=vertices[i].b=vertices[i].a=1.f;
         }
+        self.center = GLKVector4Make(frm.origin.x+frm.size.width/2.f, frm.origin.y+frm.size.height/2.f, 0.f, 1.f) ;
     }
     return self ;
 }
@@ -984,6 +888,116 @@ const GLubyte c_cubeIndices[36] =
     }
     [super drawMeAndChildren] ;
 }
-@end 
+-(void)setAlpha:(GLfloat)alpha1
+{
+    alpha = alpha1 ;
+    for (int i = 0; i<4; i++) {
+        vertices[i].a=alpha ;
+    }
+}
+-(GLfloat)width
+{
+    return vertices[1].x-vertices[0].x ;
+}
+-(GLfloat)height
+{
+    return vertices[2].y - vertices[0].y ;
+}
+@end
+
+
+//=============================================================
+#pragma mark - ESSimpleButton
+@implementation ESSimpleButton
+-(id)initWithTag:(int)tag1 frame:(CGRect)frm texture:(esTexture*)estexture1 target:(id)tar action:(SEL)act
+{
+    self = [super initWithTag:tag1 frame:frm texture:estexture1] ;
+    if( self )
+    {
+        tapTarget = tar ;
+        tapAction = act ;
+        self.userInteraction = ESNodeUserInteractionSelfOnly ;
+    }
+    return self ;
+}
+//for Overwrite.
+-(BOOL)overWriteTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    UITouch* touch = [touches anyObject] ;
+    if( [self isTouchInSide:touch] )
+    {
+        //NSLog(@"touch began inside") ;
+        hasTouchIn = YES ;
+        for (int i = 0; i<4; i++) {
+            vertices[i].r=vertices[i].g=vertices[i].b=0.25f;
+            vertices[i].a=1.f;
+        }
+    }else
+    {
+        hasTouchIn = NO ;
+        for (int i = 0; i<4; i++) {
+            vertices[i].r=vertices[i].g=vertices[i].b=1.f;
+            vertices[i].a=1.f;
+        }
+    }
+    return NO ;
+}
+-(BOOL)overWriteTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if( hasTouchIn==NO ) return NO ;
+    UITouch* touch = [touches anyObject] ;
+    if( [self isTouchInSide:touch] )
+    {
+        //NSLog(@"touch mov inside") ;
+        for (int i = 0; i<4; i++) {
+            vertices[i].r=vertices[i].g=vertices[i].b=0.25f;
+            vertices[i].a=1.f;
+        }
+    }else
+    {
+        for (int i = 0; i<4; i++) {
+            vertices[i].r=vertices[i].g=vertices[i].b=1.f;
+            vertices[i].a=1.f;
+        }
+    }
+    return NO ;
+}
+-(BOOL)overWriteTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if( hasTouchIn==NO ) return NO ;
+    hasTouchIn = NO ;
+    UITouch* touch = [touches anyObject] ;
+    if( [self isTouchInSide:touch] )
+    {
+        //NSLog(@"touch end inside") ;
+        if( tapTarget )
+        {
+            [tapTarget performSelector:tapAction withObject:self] ;
+            for (int i = 0; i<4; i++) {
+                vertices[i].r=vertices[i].g=vertices[i].b=1.f;
+                vertices[i].a=1.f;
+            }
+            return YES ;
+        }
+    }
+    for (int i = 0; i<4; i++) {
+        vertices[i].r=vertices[i].g=vertices[i].b=1.f;
+        vertices[i].a=1.f;
+    }
+    return NO ;
+}
+-(BOOL)isTouchInSide:(UITouch*)touch
+{
+    CGPoint pt = [touch locationInView:nil] ;
+    pt.y = 480.f - pt.y ;
+    CGPoint ptr = [self centerInRoot] ;
+    if( fabsf(pt.x - ptr.x) < [self width]/2.f && fabsf(pt.y-ptr.y) < [self height]/2.f )
+        return YES ;
+    else return NO ;
+}
+
+@end
+
+
 
 

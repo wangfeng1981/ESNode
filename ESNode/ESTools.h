@@ -11,7 +11,36 @@
 
 
 #define ESTOOLS_RELEASE(p) if(p){[p release];p=nil;}
+//=============================================================
+#pragma mark - GL program and shader
 
+@interface esProgram : NSObject
+{
+	NSString* fshFilename ;
+	NSString* vshFilename ;
+	NSArray*  attrNameArray ;
+	NSArray*  unifNameArray ;
+	GLuint iprogram ;
+	
+	GLint unifLocation[8] ;
+	short numUniform ;
+	
+}
+@property(readonly,nonatomic)GLuint iprogram ;
+// fshfilename and vshfilename are none have extname.
+-(id)initWithVsh:(NSString*)vshfilename andFsh:(NSString*)fshfilename andAttrnameArray:(NSArray*)attrArr andUnifnameArray:(NSArray*)unifArr;
+-(id)initWithVshString:(const GLchar*)vstring andFshString:(const GLchar*)fstring andAttrnameArray:(NSArray*)attrArr andUnifnameArray:(NSArray*)unifArr ;
+
+-(BOOL)compileShader:(GLuint*)ish type:(GLenum)type text:(const GLchar*)carr ;
+-(BOOL)compileShader:(GLuint*)ish type:(GLenum)type file:(NSString*)file ;
+-(BOOL)linkProgram ;
+-(void)useProgram ;
+//-(void)updateUniform:(short)iu byMat4:(es2Matrix4*)m ;
+-(void)updateAttribute:(GLuint)index size:(GLint)sz type:(GLenum)t normalize:(GLboolean)n stride:(GLsizei)stride1 pointer:(GLvoid*)ptr ;
+-(GLint)uniformLocation:(int)index ;
+-(void)updateUniform:(short)iu byMat4:(GLKMatrix4*)mat4 ;
+-(void)bindTexture0ByTextureId:(GLuint)texid uniformIndex:(short)iu ;
+@end
 
 
 //======================================================
@@ -70,6 +99,36 @@
 -(esTexture*)buildESTextureById:(int)subtexid ;
 -(GLfloat*)getCoords8ById:(int)subtexid ;
 -(int)getSubidByIndex:(int)index ;
+@end
+
+//======================================================
+#pragma mark - esAnimKeyFrame
+@interface esAnimKeyFrame : NSObject
+{
+	GLfloat x1,y1,z1,xs1,ys1,zs1,alpha1,roll1,yaw1,pitch1 ;
+	CFTimeInterval duration ;
+}
+@property(readonly,nonatomic) GLfloat x1,y1,z1,xs1,ys1,zs1,alpha1,roll1,yaw1,pitch1 ;
+@property(readonly,nonatomic) CFTimeInterval duration ;
+-(id)initx:(GLfloat)x y:(GLfloat)y z:(GLfloat)z xs:(GLfloat)xs ys:(GLfloat)ys zs:(GLfloat)zs alpha:(GLfloat)alpha roll:(GLfloat)roll yaw:(GLfloat)yaw pitch:(GLfloat)pitch duration:(CFTimeInterval)dura ;
++(esAnimKeyFrame*)createx:(GLfloat)x y:(GLfloat)y z:(GLfloat)z xs:(GLfloat)xs ys:(GLfloat)ys zs:(GLfloat)zs alpha:(GLfloat)alpha roll:(GLfloat)roll yaw:(GLfloat)yaw pitch:(GLfloat)pitch duration:(CFTimeInterval)dura ;
+
+@end
+
+
+//======================================================
+#pragma mark - esAnimation
+@interface esAnimation : NSObject
+{
+	NSMutableArray* keysArray ;//the first keyframe's duration is ignored! keysArray must have 2 keyframes at least!
+    GLfloat x,y,z,xs,ys,zs,alpha,roll,yaw,pitch ;
+}
+@property(readonly,nonatomic) GLfloat x,y,z,xs,ys,zs,alpha,roll,yaw,pitch ;
+@property(readonly,nonatomic) NSMutableArray* keysArray ;
+-(id)init ;
+-(void)update:(GLfloat)dura finished:(BOOL*)isFinished ;
+//private
+-(void)interptx:(GLfloat)dt time0:(GLfloat)t0 time1:(GLfloat)t1 key0:(esAnimKeyFrame*)key0 key1:(esAnimKeyFrame*)key1 ;
 @end
 
 

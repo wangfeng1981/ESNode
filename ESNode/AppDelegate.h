@@ -27,4 +27,7 @@
 
 
 -(void)onESNodeTimer:(id)sender ;
+-(void)onBeforeAnim:(id)sender ;
+-(void)onAfterAnim:(id)sender ;
+-(void)onButtonTapped:(id)sender ;
 @end

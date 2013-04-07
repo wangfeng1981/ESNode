@@ -33,36 +33,7 @@ typedef union esVertexP3C4T2 esVertexP3C4T2;
 
 
 
-//=============================================================
-#pragma mark - GL program and shader
 
-@interface esProgram : NSObject
-{
-	NSString* fshFilename ;
-	NSString* vshFilename ;
-	NSArray*  attrNameArray ;
-	NSArray*  unifNameArray ;
-	GLuint iprogram ;
-	
-	GLint unifLocation[8] ;
-	short numUniform ;
-	
-}
-@property(readonly,nonatomic)GLuint iprogram ;
-// fshfilename and vshfilename are none have extname.
--(id)initWithVsh:(NSString*)vshfilename andFsh:(NSString*)fshfilename andAttrnameArray:(NSArray*)attrArr andUnifnameArray:(NSArray*)unifArr;
--(id)initWithVshString:(const GLchar*)vstring andFshString:(const GLchar*)fstring andAttrnameArray:(NSArray*)attrArr andUnifnameArray:(NSArray*)unifArr ;
-
--(BOOL)compileShader:(GLuint*)ish type:(GLenum)type text:(const GLchar*)carr ;
--(BOOL)compileShader:(GLuint*)ish type:(GLenum)type file:(NSString*)file ;
--(BOOL)linkProgram ;
--(void)useProgram ;
-//-(void)updateUniform:(short)iu byMat4:(es2Matrix4*)m ;
--(void)updateAttribute:(GLuint)index size:(GLint)sz type:(GLenum)t normalize:(GLboolean)n stride:(GLsizei)stride1 pointer:(GLvoid*)ptr ;
--(GLint)uniformLocation:(int)index ;
--(void)updateUniform:(short)iu byMat4:(GLKMatrix4*)mat4 ;
--(void)bindTexture0ByTextureId:(GLuint)texid uniformIndex:(short)iu ;
-@end
 
 
 
@@ -97,6 +68,7 @@ typedef enum ESNodeUserInteractionType ESNodeUserInteractionType;
 	GLKVector4 center  ;
 	GLfloat rollDeg,yawDeg,pitchDeg  ;
     GLfloat xScale , yScale , zScale;
+    GLfloat alpha ;
 	    
 	//Matrixs
 	GLKMatrix4 rotMatrix,movMatrix,sclMatrix,
@@ -111,6 +83,14 @@ typedef enum ESNodeUserInteractionType ESNodeUserInteractionType;
 	GLfloat timerSeconds ;
 	id timerTarget ;
 	SEL timerAction ;
+    
+    //esAnimation
+    GLfloat animDuration ;
+    esAnimation* animation ;
+    id      animTarget ;
+    SEL     animBeforeAction ;
+    SEL     animAfterAction ;
+    BOOL    animPaused ;
 }
 
 @property(assign,nonatomic)int tag ;
@@ -121,6 +101,7 @@ typedef enum ESNodeUserInteractionType ESNodeUserInteractionType;
 @property(assign,nonatomic)GLKVector4 center ;
 @property(assign,nonatomic)GLfloat rollDeg,yawDeg,pitchDeg ;
 @property(assign,nonatomic)GLfloat xScale,yScale,zScale ;
+@property(assign,nonatomic)GLfloat alpha ;
 
 @property(retain,nonatomic)ESNode* firstChildR ;
 @property(retain,nonatomic)ESNode* nextSiblingR ;
@@ -130,13 +111,17 @@ typedef enum ESNodeUserInteractionType ESNodeUserInteractionType;
 @property(readonly,nonatomic)int timerState ;
 @property(readonly,nonatomic)int timerCircles ;
 
+@property(assign,nonatomic)BOOL animPaused ;
+
 -(id)initWithTag:(int)tag1 ;
+//nodes
 -(void)addChild:(ESNode*)node ;
 -(void)insertChild:(ESNode*)node afterNode:(ESNode*)anode ;
 -(void)insertChild:(ESNode *)node beforeNode:(ESNode*)bnode ;
 -(BOOL)removeChild:(ESNode*)node ;
 -(ESNode*)locateChildByTag:(int)tag1 ;
 -(void)removeFromParent ;
+//update and draw
 -(void)update:(GLfloat)timeinter ;
 -(void)updateMeAndChildren:(GLfloat)timeinter ;
 -(void)draw ;
@@ -150,6 +135,9 @@ typedef enum ESNodeUserInteractionType ESNodeUserInteractionType;
 -(void)deleteTimer ;
 -(void)pauseTimer ;
 -(void)resumeTimer ;
+//animation
+-(void)satAnim:(esAnimation*)anim target:(id)tar beforeAnimStartAction:(SEL)befAction afterAnimEndAction:(SEL)aftAction start:(GLfloat)start;
+
 
 //UserInteraction 返回YES不再传递Event,返回NO继续传递event.
 -(BOOL)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
@@ -159,6 +147,8 @@ typedef enum ESNodeUserInteractionType ESNodeUserInteractionType;
 -(BOOL)overWriteTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
 -(BOOL)overWriteTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
 -(BOOL)overWriteTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
+//center location
+-(CGPoint)centerInRoot ;
 
 @end
 
@@ -232,6 +222,21 @@ screenLandscape:(BOOL)landscape ;
 }
 @property(retain,nonatomic)esTexture* estexture ;
 -(id)initWithTag:(int)tag1 frame:(CGRect)frm texture:(esTexture*)estexture1 ;
+-(GLfloat)width ;
+-(GLfloat)height ;
+@end
+
+//=============================================================
+#pragma mark - ESSimpleButton
+@interface ESSimpleButton:ESSimpleSprite
+{
+    id tapTarget ;
+    SEL tapAction ;
+    BOOL hasTouchIn ;
+}
+-(id)initWithTag:(int)tag1 frame:(CGRect)frm texture:(esTexture*)estexture1 target:(id)tar action:(SEL)act ;
+-(BOOL)isTouchInSide:(UITouch*)touch ;
+
 @end
 
 
