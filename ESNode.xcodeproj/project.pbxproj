@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A30B53917130BC700696647 /* spo.png in Resources */ = {isa = PBXBuildFile; fileRef = 0A30B53717130BC700696647 /* spo.png */; };
+		0A30B53A17130BC700696647 /* spo.txt in Resources */ = {isa = PBXBuildFile; fileRef = 0A30B53817130BC700696647 /* spo.txt */; };
 		0A61F463170712DD008BDED1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A61F462170712DD008BDED1 /* UIKit.framework */; };
 		0A61F465170712DD008BDED1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A61F464170712DD008BDED1 /* Foundation.framework */; };
 		0A61F467170712DD008BDED1 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A61F466170712DD008BDED1 /* CoreGraphics.framework */; };
@@ -21,12 +23,16 @@
 		0A61F4841707138B008BDED1 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A61F4831707138B008BDED1 /* QuartzCore.framework */; };
 		0A61F4871707191E008BDED1 /* ESTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A61F4861707191E008BDED1 /* ESTools.m */; };
 		0A61F49A17072DCB008BDED1 /* ESNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A61F49917072DCB008BDED1 /* ESNode.m */; };
+		0AC8901017145A3E001FEF57 /* hero-packer.png in Resources */ = {isa = PBXBuildFile; fileRef = 0AC8900E17145A3E001FEF57 /* hero-packer.png */; };
+		0AC8901117145A3E001FEF57 /* hero-packer.txt in Resources */ = {isa = PBXBuildFile; fileRef = 0AC8900F17145A3E001FEF57 /* hero-packer.txt */; };
 		0AD533521708752A00889E70 /* texture1.png in Resources */ = {isa = PBXBuildFile; fileRef = 0AD533511708752A00889E70 /* texture1.png */; };
 		0AE08B02170B0E29004840B1 /* tex1.png in Resources */ = {isa = PBXBuildFile; fileRef = 0AE08B00170B0E29004840B1 /* tex1.png */; };
 		0AE08B03170B0E29004840B1 /* tex1.txt in Resources */ = {isa = PBXBuildFile; fileRef = 0AE08B01170B0E29004840B1 /* tex1.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0A30B53717130BC700696647 /* spo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = spo.png; sourceTree = "<group>"; };
+		0A30B53817130BC700696647 /* spo.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = spo.txt; sourceTree = "<group>"; };
 		0A61F45E170712DD008BDED1 /* ESNode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ESNode.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A61F462170712DD008BDED1 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		0A61F464170712DD008BDED1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -47,6 +53,8 @@
 		0A61F4861707191E008BDED1 /* ESTools.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ESTools.m; sourceTree = "<group>"; };
 		0A61F49817072DCB008BDED1 /* ESNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESNode.h; sourceTree = "<group>"; };
 		0A61F49917072DCB008BDED1 /* ESNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ESNode.m; sourceTree = "<group>"; };
+		0AC8900E17145A3E001FEF57 /* hero-packer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "hero-packer.png"; sourceTree = "<group>"; };
+		0AC8900F17145A3E001FEF57 /* hero-packer.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "hero-packer.txt"; sourceTree = "<group>"; };
 		0AD533511708752A00889E70 /* texture1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = texture1.png; path = ESNode/texture1.png; sourceTree = "<group>"; };
 		0AE08B00170B0E29004840B1 /* tex1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tex1.png; sourceTree = "<group>"; };
 		0AE08B01170B0E29004840B1 /* tex1.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tex1.txt; sourceTree = "<group>"; };
@@ -134,6 +142,10 @@
 				0AE08B00170B0E29004840B1 /* tex1.png */,
 				0AE08B01170B0E29004840B1 /* tex1.txt */,
 				0AD533511708752A00889E70 /* texture1.png */,
+				0A30B53717130BC700696647 /* spo.png */,
+				0A30B53817130BC700696647 /* spo.txt */,
+				0AC8900E17145A3E001FEF57 /* hero-packer.png */,
+				0AC8900F17145A3E001FEF57 /* hero-packer.txt */,
 			);
 			name = resources;
 			sourceTree = "<group>";
@@ -196,6 +208,10 @@
 				0AD533521708752A00889E70 /* texture1.png in Resources */,
 				0AE08B02170B0E29004840B1 /* tex1.png in Resources */,
 				0AE08B03170B0E29004840B1 /* tex1.txt in Resources */,
+				0A30B53917130BC700696647 /* spo.png in Resources */,
+				0A30B53A17130BC700696647 /* spo.txt in Resources */,
+				0AC8901017145A3E001FEF57 /* hero-packer.png in Resources */,
+				0AC8901117145A3E001FEF57 /* hero-packer.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

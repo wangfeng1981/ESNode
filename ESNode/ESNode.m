@@ -998,6 +998,239 @@ const GLubyte c_cubeIndices[36] =
 
 @end
 
+//=============================================================
+#pragma mark - eAnimationSprites
+@implementation eAnimationSprites
+@synthesize etexture , numberOfFrames ,align , currentFrameIndex ;
+-(void)dealloc
+{
+    ESTOOLS_RELEASE(etexture) ;
+    if( coords8Array )
+    {
+        free(coords8Array) ;
+        coords8Array = NULL ;
+    }
+    if( coordsWidth )
+    {
+        free(coordsWidth) ;
+        coordsWidth = NULL ;
+    }
+    if( coordsHeight )
+    {
+        free(coordsHeight) ;
+        coordsHeight = NULL ;
+    }
+    [super dealloc] ;
+}
+-(id)initWithAtlas:(esAtlasTexture*)atlas numOfFrames:(int)nof frameIdArray:(int*)fidArr align:(eAnimationSpritesQuadAlign)align1
+{
+    self = [super init] ;
+    if( self )
+    {
+        numberOfFrames = nof ;
+        etexture = [atlas.etexture retain] ;
+        coords8Array = (GLfloat*)malloc(numberOfFrames*8*sizeof(GLfloat)) ;
+        coordsWidth = (GLfloat*)malloc(numberOfFrames*sizeof(GLfloat)) ;
+        coordsHeight = (GLfloat*)malloc(numberOfFrames*sizeof(GLfloat)) ;
+        maxHeight = maxWidth = 0.f ;
+        for (int i = 0; i<numberOfFrames; i++) {
+            esTexture* est = [atlas buildESTextureById:fidArr[i]] ;
+            GLfloat* c = [est getCoords8] ;
+            memcpy(&coords8Array[i*8], c , sizeof(GLfloat)*8 ) ;
+            GLfloat w = c[2] - c[0] ;
+            GLfloat h = c[1] - c[5] ;
+            coordsWidth[i] = w ;
+            coordsHeight[i] = h ;
+            if( w > maxWidth ) maxWidth = w ;
+            if( h > maxHeight ) maxHeight = h ;
+        }
+        align = align1 ;
+        currentFrameIndex = 0 ;
+        for (int i = 0; i<4; i++) {
+            vertices[i].r=vertices[i].g=vertices[i].b=vertices[i].a = 1.f ;
+        }
+    }
+    return self ;
+}
+-(esVertexP3C4T2*)getQuadVertices
+{
+    return vertices ;
+}
+-(void)update:(GLfloat)currenttime frameinterval:(GLfloat)frameinter maxwidth:(GLfloat)maxwid maxheight:(GLfloat)maxhei 
+{
+    currentFrameIndex = (int)(currenttime / frameinter) ;
+    if( currentFrameIndex > numberOfFrames-1 ) currentFrameIndex = numberOfFrames-1 ;
+    GLfloat* c = &coords8Array[currentFrameIndex*8] ;
+    //texcoords
+    vertices[0].s = c[0] ;
+    vertices[0].t = c[1] ;
+    vertices[1].s = c[2] ;
+    vertices[1].t = c[3] ;
+    vertices[2].s = c[4] ;
+    vertices[2].t = c[5] ;
+    vertices[3].s = c[6] ;
+    vertices[3].t = c[7] ;
+    //quads
+    GLfloat frmwid = coordsWidth[currentFrameIndex]*maxwid/maxWidth ;
+    GLfloat frmhei = coordsHeight[currentFrameIndex]*maxhei/maxHeight ;
+    GLfloat x0 = 0.f ;
+    GLfloat y0 = 0.f ;
+    switch (align) {
+        case eAnimationSpritesQuadAlignTopLeft:
+            x0 = -maxwid/2.f ;
+            y0 = maxhei/2.f - frmhei ;
+            break;
+        case eAnimationSpritesQuadAlignTopCenter:
+            x0 = -frmwid/2.f ;
+            y0 = maxhei/2.f - frmhei ;
+            break;
+        case eAnimationSpritesQuadAlignTopRight:
+            x0 = maxwid/2.f - frmwid ;
+            y0 = maxhei/2.f - frmhei ;
+            break;
+        case eAnimationSpritesQuadAlignMidLeft:
+            x0 = -maxwid/2.f ;
+            y0 = -frmhei/2.f ;
+            break;
+        case eAnimationSpritesQuadAlignMidCenter:
+            x0 = -frmwid/2.f ;
+            y0 = -frmhei/2.f ;
+            break;
+        case eAnimationSpritesQuadAlignMidRight:
+            x0 = maxwid/2.f - frmwid ;
+            y0 = -frmhei/2.f ;
+            break;
+        case eAnimationSpritesQuadAlignBottomLeft:
+            x0 = -maxwid/2.f ;
+            y0 = -maxhei/2.f ;
+            break;
+        case eAnimationSpritesQuadAlignBottomCenter:
+            x0 = -frmwid/2.f ;
+            y0 = -maxhei/2.f ;
+            break;
+        case eAnimationSpritesQuadAlignBottomRight:
+            x0 = maxwid/2.f - frmwid ;
+            y0 = -maxhei/2.f ;
+            break;
+        default:
+            break;
+    }
+    vertices[2].x = vertices[0].x = x0 ;
+    vertices[1].y = vertices[0].y = y0 ;
+    vertices[3].x = vertices[1].x = x0+frmwid ;
+    vertices[3].y = vertices[2].y = y0+frmhei ;
+}
+
+
+@end
+
+
+
+//=============================================================
+#pragma mark - ESAnimationSprites
+@implementation ESAnimationSprites
+@synthesize eanimFrameInterval,eanimPaused ;
+-(void)dealloc
+{
+    ESTOOLS_RELEASE(eanimSprites) ;
+    [super dealloc] ;
+}
+-(id)initWithTag:(int)tag1 frame:(CGRect)frm eAnimSprites:(eAnimationSprites*)eas frameinter:(GLfloat)fi
+{
+    self = [super initWithTag:tag1] ;
+    if( self )
+    {
+        self.center = GLKVector4Make(frm.origin.x+frm.size.width/2.f, frm.origin.y+frm.size.height, 0, 1) ;
+        spriteMaxHeight = frm.size.height ;
+        spriteMaxWidth = frm.size.width ;
+        
+        eanimPaused = YES ;
+        eanimLooped = NO ;
+        eanimSprites = [eas retain] ;
+        eanimCurrentTime = 0.f ;
+        eanimFrameInterval = fi ;
+        eanimStopFrame =  eanimSprites.numberOfFrames - 1 ;
+        eanimCircleTime = eanimFrameInterval*eanimSprites.numberOfFrames ;
+    }
+    return self ;
+}
+-(void)setEanimFrameInterval:(GLfloat)frameInterval1
+{
+    eanimFrameInterval = frameInterval1 ;
+    eanimCircleTime = eanimFrameInterval*eanimSprites.numberOfFrames ;
+}
+-(void)playToEnd:(id)tar action:(SEL)act
+{
+    eanimLooped = NO ;
+    eanimPaused = NO ;
+    eanimCurrentTime = 0 ;
+    eanimStopFrame = eanimSprites.numberOfFrames-1 ;
+    eanimEndTarget = tar ;
+    eanimEndAction = act ;
+}
+-(void)playFrom:(int)ifrm0 to:(int)ifrm1 target:(id)tar action:(SEL)act
+{
+    eanimLooped = NO ;
+    eanimPaused = NO ;
+    eanimCurrentTime = ifrm0 * eanimFrameInterval ;
+    eanimStopFrame = ifrm1 ;
+    eanimEndTarget = tar ;
+    eanimEndAction = act ;
+}
+-(void)playLoop
+{
+    eanimLooped = YES ;
+    eanimPaused = NO ;
+    eanimCurrentTime = 0.f ;
+}
+-(void)updateMeAndChildren:(GLfloat)timeinter
+{
+    if( !eanimPaused )
+	{
+        eanimCurrentTime += timeinter ;
+		if( eanimCurrentTime > eanimCircleTime )
+		{
+			if( eanimLooped )
+			{
+                GLfloat nc = eanimCurrentTime / eanimCircleTime ;
+                eanimCurrentTime = eanimCurrentTime - nc*eanimCircleTime ;
+			}else
+			{
+				eanimCurrentTime = eanimCircleTime ;
+				eanimPaused = YES ;
+				if( eanimEndTarget ) [eanimEndTarget performSelector:eanimEndAction withObject:self] ;
+			}
+		}else if( !eanimLooped && eanimCurrentTime > eanimStopFrame * eanimFrameInterval )
+        {
+            eanimCurrentTime = eanimStopFrame * eanimFrameInterval ;
+            eanimPaused = YES ;
+            if( eanimEndTarget ) [eanimEndTarget performSelector:eanimEndAction withObject:self] ;
+        }
+	}
+	[super updateMeAndChildren:timeinter] ;
+}
+-(void)drawMeAndChildren
+{
+
+    esProgram* program1 = [ESRoot currentRoot]._program2d ;
+    if( program1 )
+    {
+        [program1 useProgram] ;
+        [program1 updateUniform:0 byMat4:&transformMatrix] ;
+        [program1 bindTexture0ByTextureId:eanimSprites.etexture.textureid uniformIndex:1] ;
+        [eanimSprites update:eanimCurrentTime frameinterval:eanimFrameInterval maxwidth:spriteMaxWidth maxheight:spriteMaxHeight] ;
+        esVertexP3C4T2* v = [eanimSprites getQuadVertices] ;
+        [program1 updateAttribute:0 size:3 type:GL_FLOAT normalize:0 stride:9*sizeof(GLfloat) pointer:v] ;
+        [program1 updateAttribute:1 size:4 type:GL_FLOAT normalize:0 stride:9*sizeof(GLfloat) pointer:&(v[0].r)] ;
+        [program1 updateAttribute:2 size:2 type:GL_FLOAT normalize:0 stride:9*sizeof(GLfloat) pointer:&(v[0].s)] ;
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4) ;
+    }
+    [super drawMeAndChildren] ;
+}
+
+@end
+
+
 
 
 

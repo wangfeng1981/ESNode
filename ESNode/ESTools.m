@@ -352,7 +352,10 @@ unsigned int ccNextPOT(unsigned int x)
 	coords8[0]=x0;coords8[1]=y0;coords8[2]=x1;coords8[3]=y0;
 	coords8[4]=x0;coords8[5]=y1;coords8[6]=x1;coords8[7]=y1;
 }
-
+-(void)setCoordsByC8:(GLfloat*)c8
+{
+    memcpy(coords8, c8, 8*sizeof(GLfloat)) ;
+}
 -(GLfloat*)getCoords8
 {
     return coords8 ;

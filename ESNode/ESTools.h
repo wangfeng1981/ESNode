@@ -68,6 +68,7 @@
 }
 @property(readonly,nonatomic) eTexture* etexture ;
 -(void)setCoordsByFourCornerX0:(GLfloat)x0 Y0:(GLfloat)y0 X1:(GLfloat)x1 Y1:(GLfloat)y1 ;
+-(void)setCoordsByC8:(GLfloat*)c8;
 -(GLfloat*)getCoords8 ;
 -(id)initByName:(NSString*)filename ;
 -(id)initByeTexture:(eTexture*)etex ;

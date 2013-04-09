@@ -140,6 +140,19 @@
         ESSimpleButton* button1 = [[[ESSimpleButton alloc] initWithTag:300 frame:CGRectMake(320-64, 480-64, 64, 64) texture:[atlas1 buildESTextureById:9] target:self action:@selector(onButtonTapped:)] autorelease] ;
         [_esRoot.orthoRoot addChild:button1] ;
         
+        //ESAnimationSprites
+        int frameids1[16] = {200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215} ;
+        eAnimationSprites* eas = [[[eAnimationSprites alloc] initWithAtlas:[esAtlasTexture create:@"spo"] numOfFrames:16 frameIdArray:frameids1 align:eAnimationSpritesQuadAlignTopLeft] autorelease] ;
+        ESAnimationSprites* esas = [[[ESAnimationSprites alloc] initWithTag:400 frame:CGRectMake(200, 200, 64, 64) eAnimSprites:eas frameinter:0.1] autorelease];
+        [esas playLoop] ;
+        [_esRoot.orthoRoot addChild:esas] ;
+        
+        int frameids2[4] = {4001,4002,4003,4004} ;
+        eAnimationSprites* eas2 = [[[eAnimationSprites alloc] initWithAtlas:[esAtlasTexture create:@"hero-packer"] numOfFrames:4 frameIdArray:frameids2 align:eAnimationSpritesQuadAlignBottomCenter] autorelease] ;
+        ESAnimationSprites* esas2 = [[[ESAnimationSprites alloc] initWithTag:500 frame:CGRectMake(150, 270, 64, 64) eAnimSprites:eas2 frameinter:0.1] autorelease];
+        [esas2 playLoop] ;
+        [_esRoot.orthoRoot addChild:esas2] ;
+        
     }
     [_esRoot update:timeinter] ;
     [_esRoot draw] ;
@@ -206,5 +219,20 @@
 {
     ESNode* node = (ESNode*)sender ;
     NSLog(@"button %d tapped.",node.tag) ;
+    ESNode* n1 = [[ESRoot currentRoot].orthoRoot locateChildByTag:400] ;
+    if( n1 )
+    {
+        [n1 removeFromParent] ;
+        NSLog(@"remove 400") ;
+    }else
+    {
+        n1 = [[ESRoot currentRoot].orthoRoot locateChildByTag:500] ;
+        if( n1 )
+        {
+            [n1 removeFromParent] ;
+            NSLog(@"remove 500") ;
+        }else
+            NSLog(@"no remove");
+    }
 }
 @end

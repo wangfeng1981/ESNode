@@ -239,7 +239,74 @@ screenLandscape:(BOOL)landscape ;
 
 @end
 
+//=============================================================
+#pragma mark - eAnimationSprites
+enum eAnimationSpritesQuadAlign
+{
+    eAnimationSpritesQuadAlignTopLeft ,
+    eAnimationSpritesQuadAlignTopCenter ,
+    eAnimationSpritesQuadAlignTopRight ,
+    eAnimationSpritesQuadAlignMidLeft ,
+    eAnimationSpritesQuadAlignMidCenter ,
+    eAnimationSpritesQuadAlignMidRight ,
+    eAnimationSpritesQuadAlignBottomLeft ,
+    eAnimationSpritesQuadAlignBottomCenter ,
+    eAnimationSpritesQuadAlignBottomRight 
+};
+typedef enum eAnimationSpritesQuadAlign eAnimationSpritesQuadAlign ;
 
+@interface eAnimationSprites:NSObject
+{
+	eTexture* etexture ;
+	GLfloat* coords8Array ;
+    GLfloat* coordsWidth ;
+    GLfloat* coordsHeight ;
+    GLfloat  maxWidth ;
+    GLfloat  maxHeight ;
+    
+    int numberOfFrames ;
+    int currentFrameIndex ;
+    eAnimationSpritesQuadAlign align ;
+    
+    esVertexP3C4T2 vertices[4] ;
+}
+@property(readonly,nonatomic) eTexture* etexture ;
+@property(readonly,nonatomic)eAnimationSpritesQuadAlign align ;
+@property(readonly,nonatomic) int currentFrameIndex ;
+@property(readonly,nonatomic) int numberOfFrames ;
+
+-(id)initWithAtlas:(esAtlasTexture*)atlas numOfFrames:(int)nof frameIdArray:(int*)fidArr align:(eAnimationSpritesQuadAlign)align1 ;
+-(esVertexP3C4T2*)getQuadVertices ;
+-(void)update:(GLfloat)currenttime frameinterval:(GLfloat)frameinter maxwidth:(GLfloat)maxwid maxheight:(GLfloat)maxhei ;
+@end
+
+
+//=============================================================
+#pragma mark - ESAnimationSprites
+@interface ESAnimationSprites : ESNode
+{
+	eAnimationSprites* eanimSprites ;
+	GLfloat eanimCurrentTime ;
+	GLfloat eanimFrameInterval;
+    GLfloat eanimCircleTime ;
+	BOOL     eanimPaused ;
+	BOOL     eanimLooped ;
+    int      eanimStopFrame ;
+	//..
+	id eanimEndTarget ;
+	SEL eanimEndAction ;
+    //..
+    GLfloat spriteMaxWidth , spriteMaxHeight ;
+	
+}
+@property(assign,nonatomic) GLfloat eanimFrameInterval ;
+@property(assign,nonatomic) BOOL eanimPaused ;
+
+-(id)initWithTag:(int)tag1 frame:(CGRect)frm eAnimSprites:(eAnimationSprites*)eas frameinter:(GLfloat)fi ;
+-(void)playToEnd:(id)tar action:(SEL)act ;
+-(void)playFrom:(int)ifrm0 to:(int)ifrm1 target:(id)tar action:(SEL)act ;
+-(void)playLoop ;
+@end
 
 
 
