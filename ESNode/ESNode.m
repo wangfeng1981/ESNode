@@ -835,6 +835,7 @@ const GLubyte c_cubeIndices[36] =
     self = [super initWithTag:tag1] ;
     if( self )
     {
+        flipType = ESSimpleSpriteFlipTypeLeftRight ;
         vertices[0].x = -frm.size.width/2.f ;
         vertices[0].y = -frm.size.height/2.f ;
         vertices[1].x =  frm.size.width/2.f ;
@@ -903,6 +904,24 @@ const GLubyte c_cubeIndices[36] =
 {
     return vertices[2].y - vertices[0].y ;
 }
+-(void)flip:(ESSimpleSpriteFlipType)ft
+{
+    if( flipType == ft ) return ;
+    flipType = ft ;
+    float s,t ;
+    s = vertices[0].s ;
+    t = vertices[0].t ;
+    vertices[0].s = vertices[1].s ;
+    vertices[0].t = vertices[1].t ;
+    vertices[1].s = s ;
+    vertices[1].t = t ;
+    s = vertices[2].s ;
+    t = vertices[2].t ;
+    vertices[2].s = vertices[3].s ;
+    vertices[2].t = vertices[3].t ;
+    vertices[3].s = s ;
+    vertices[3].t = t ;
+}
 @end
 
 
@@ -930,14 +949,16 @@ const GLubyte c_cubeIndices[36] =
         hasTouchIn = YES ;
         for (int i = 0; i<4; i++) {
             vertices[i].r=vertices[i].g=vertices[i].b=0.25f;
-            vertices[i].a=1.f;
         }
+        if( touchEventTarget )
+            [touchEventTarget performSelector:touchBeginAction withObject:self] ;
     }else
     {
+        if( hasTouchIn && touchEventTarget )
+            [touchEventTarget performSelector:touchEndAction withObject:self] ;
         hasTouchIn = NO ;
         for (int i = 0; i<4; i++) {
             vertices[i].r=vertices[i].g=vertices[i].b=1.f;
-            vertices[i].a=1.f;
         }
     }
     return NO ;
@@ -951,19 +972,25 @@ const GLubyte c_cubeIndices[36] =
         //NSLog(@"touch mov inside") ;
         for (int i = 0; i<4; i++) {
             vertices[i].r=vertices[i].g=vertices[i].b=0.25f;
-            vertices[i].a=1.f;
         }
+        if( touchEventTarget )
+            [touchEventTarget performSelector:touchMoveAction withObject:self] ;
+
     }else
     {
         for (int i = 0; i<4; i++) {
             vertices[i].r=vertices[i].g=vertices[i].b=1.f;
-            vertices[i].a=1.f;
         }
+        if( touchEventTarget )
+            [touchEventTarget performSelector:touchEndAction withObject:self] ;
     }
     return NO ;
 }
 -(BOOL)overWriteTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    if( touchEventTarget )
+        [touchEventTarget performSelector:touchEndAction withObject:self] ;
+    
     if( hasTouchIn==NO ) return NO ;
     hasTouchIn = NO ;
     UITouch* touch = [touches anyObject] ;
@@ -975,15 +1002,14 @@ const GLubyte c_cubeIndices[36] =
             [tapTarget performSelector:tapAction withObject:self] ;
             for (int i = 0; i<4; i++) {
                 vertices[i].r=vertices[i].g=vertices[i].b=1.f;
-                vertices[i].a=1.f;
             }
             return YES ;
         }
     }
     for (int i = 0; i<4; i++) {
         vertices[i].r=vertices[i].g=vertices[i].b=1.f;
-        vertices[i].a=1.f;
     }
+    
     return NO ;
 }
 -(BOOL)isTouchInSide:(UITouch*)touch
@@ -995,7 +1021,13 @@ const GLubyte c_cubeIndices[36] =
         return YES ;
     else return NO ;
 }
-
+-(void)setTouchEventTarget:(id)tar begin:(SEL)bact move:(SEL)mact end:(SEL)eact
+{
+    touchEventTarget = tar ;
+    touchBeginAction = bact ;
+    touchMoveAction = mact ;
+    touchEndAction = eact ;
+}
 @end
 
 //=============================================================
@@ -1228,6 +1260,142 @@ const GLubyte c_cubeIndices[36] =
     [super drawMeAndChildren] ;
 }
 
+@end
+
+
+//=============================================================
+#pragma mark - ESTileMap
+@implementation ESTileMap
+@synthesize tileCellHeight,tileCellWidth,tileHeightNumber,tileWidthNumber ;
+-(void)dealloc
+{
+    if( tileData )
+    {
+        free(tileData) ;
+        tileData = NULL ;
+    }
+    if( vertices )
+    {
+        free(vertices) ;
+        vertices = NULL ;
+    }
+    if( indices )
+    {
+        free(indices) ;
+        indices = NULL ;
+    }
+    ESTOOLS_RELEASE(tileAtlas) ;
+    [super dealloc] ;
+}
+-(id)initWithTag:(int)tag1 resfile:(NSString*)resfile
+{
+    self = [super initWithTag:tag1] ;
+    if( self )
+    {
+        NSString* fullpath=[[NSBundle mainBundle] pathForResource:resfile ofType:@"json"] ;
+        NSData* fileData = [NSData dataWithContentsOfFile:fullpath] ;
+        NSDictionary* dict = [NSJSONSerialization JSONObjectWithData:fileData options:NSJSONReadingAllowFragments error:nil] ;
+        tileWidthNumber = esfDict2int(dict, @"width");
+        tileHeightNumber = esfDict2int(dict, @"height") ;
+        tileCellWidth = esfDict2int(dict, @"tilewidth") ;
+        tileCellHeight = esfDict2int(dict, @"tileheight") ;
+        
+        tileAtlas = [[esAtlasTexture alloc] initWithResName:resfile] ;
+        
+        tileData = malloc(sizeof(short)*tileWidthNumber*tileHeightNumber) ;
+        
+        NSArray* layerArray = (NSArray*)[dict objectForKey:@"layers"] ;
+        NSDictionary* layerOne = (NSDictionary*)[layerArray objectAtIndex:0] ;
+        NSArray* layerData = (NSArray*)[layerOne objectForKey:@"data"] ;
+        int allnumber = tileWidthNumber*tileHeightNumber ;
+        
+        validCellNumber = 0 ;
+        for (int i = 0; i<allnumber; i++)
+        {
+            tileData[i] = (short)esfArray2int(layerData, i) ;
+            if( tileData[i]>0 )
+                validCellNumber++ ;
+        }
+        
+        vertices = malloc(sizeof(esVertexP3C4T2)*validCellNumber*4) ; //four vertex make a cell.
+        indices = malloc(sizeof(GLushort)*validCellNumber*6) ;
+        
+        int ivcell = 0 ;
+        for (short irow = 0; irow<tileHeightNumber; irow++) {
+            int irow0 = irow*tileWidthNumber ;
+            for (short icol = 0; icol<tileWidthNumber; icol++) {
+                short cellvalue = tileData[irow0+icol] ;
+                if( cellvalue>0 )
+                {
+                    GLfloat* c8 = [[tileAtlas buildESTextureById:[tileAtlas getSubidByIndex:cellvalue-1]] getCoords8] ;
+                    GLfloat x0 = icol*tileCellWidth ;
+                    GLfloat y0 = (tileHeightNumber-1-irow)*tileCellHeight ;
+                    int ivert = ivcell*4+0 ;//0
+                    
+                    int iIndi = ivcell*6 ;
+                    indices[iIndi+0] = ivert ; indices[iIndi+1] = ivert+1 ; indices[iIndi+2] = ivert+2 ;
+                    indices[iIndi+3] = ivert+1 ; indices[iIndi+4] = ivert+3 ; indices[iIndi+5] = ivert+2 ;
+                    
+                    vertices[ivert].x = x0 ;
+                    vertices[ivert].y = y0 ;
+                    vertices[ivert].z = 0 ;
+                    vertices[ivert].r = vertices[ivert].g = vertices[ivert].b=vertices[ivert].a = 1.f ;
+                    vertices[ivert].s = c8[0] ; vertices[ivert].t = c8[1] ;
+                    
+                    ivert = ivert+1 ;//1
+                    vertices[ivert].x = x0+tileCellWidth ;
+                    vertices[ivert].y = y0 ;
+                    vertices[ivert].z = 0 ;
+                    vertices[ivert].r = vertices[ivert].g = vertices[ivert].b=vertices[ivert].a = 1.f ;
+                    vertices[ivert].s = c8[2] ; vertices[ivert].t = c8[3] ;
+                    
+                    ivert = ivert+1 ;//2
+                    vertices[ivert].x = x0 ;
+                    vertices[ivert].y = y0+tileCellHeight ;
+                    vertices[ivert].z = 0 ;
+                    vertices[ivert].r = vertices[ivert].g = vertices[ivert].b=vertices[ivert].a = 1.f ;
+                    vertices[ivert].s = c8[4] ; vertices[ivert].t = c8[5] ;
+                    
+                    ivert = ivert+1 ;//3
+                    vertices[ivert].x = x0+tileCellWidth ;
+                    vertices[ivert].y = y0+tileCellHeight ;
+                    vertices[ivert].z = 0 ;
+                    vertices[ivert].r = vertices[ivert].g = vertices[ivert].b=vertices[ivert].a = 1.f ;
+                    vertices[ivert].s = c8[6] ; vertices[ivert].t = c8[7] ;
+                    
+                    ivcell++ ;
+                }
+            }
+        }
+    }
+    return self ;
+}
+-(short)cellDatax:(int)ix y:(int)iy
+{
+    return tileData[iy*tileWidthNumber+ix] ;
+}
+-(void)drawMeAndChildren
+{
+    if( validCellNumber > 0 )
+    {
+        esProgram* program1 = [ESRoot currentRoot]._program2d ;
+        if( program1 )
+        {
+            [program1 useProgram] ;
+            [program1 updateUniform:0 byMat4:&transformMatrix] ;
+            [program1 bindTexture0ByTextureId:tileAtlas.etexture.textureid uniformIndex:1] ;
+            [program1 updateAttribute:0 size:3 type:GL_FLOAT normalize:0 stride:9*sizeof(GLfloat) pointer:vertices] ;
+            [program1 updateAttribute:1 size:4 type:GL_FLOAT normalize:0 stride:9*sizeof(GLfloat) pointer:&(vertices[0].r)] ;
+            [program1 updateAttribute:2 size:2 type:GL_FLOAT normalize:0 stride:9*sizeof(GLfloat) pointer:&(vertices[0].s)] ;
+            glDrawElements(GL_TRIANGLES, validCellNumber*6 , GL_UNSIGNED_SHORT, indices) ;
+        }
+    }
+    [super drawMeAndChildren] ;
+}
+-(short*)gatTileData
+{
+    return tileData ;
+}
 @end
 
 

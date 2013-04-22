@@ -11,6 +11,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import "ESNode.h"
 #import "ESTools.h"
+#import "ESPhysics.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate,GLKViewDelegate>
 {
@@ -19,6 +20,7 @@
     GLKView* _glView ;
     
     ESRoot* _esRoot ;
+    espWorld2D* _espWorld ;
 }
 
 @property (strong, nonatomic) UIWindow *window;
@@ -30,4 +32,7 @@
 -(void)onBeforeAnim:(id)sender ;
 -(void)onAfterAnim:(id)sender ;
 -(void)onButtonTapped:(id)sender ;
+-(void)onTouchBegin:(id)sender ;
+-(void)onTouchMove:(id)sender ;
+-(void)onTouchEnd:(id)sender ;
 @end

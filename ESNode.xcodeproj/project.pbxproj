@@ -9,6 +9,11 @@
 /* Begin PBXBuildFile section */
 		0A30B53917130BC700696647 /* spo.png in Resources */ = {isa = PBXBuildFile; fileRef = 0A30B53717130BC700696647 /* spo.png */; };
 		0A30B53A17130BC700696647 /* spo.txt in Resources */ = {isa = PBXBuildFile; fileRef = 0A30B53817130BC700696647 /* spo.txt */; };
+		0A3D6648171A927E00569681 /* testingMap.json in Resources */ = {isa = PBXBuildFile; fileRef = 0A3D6647171A927E00569681 /* testingMap.json */; };
+		0A3D664C171AA09700569681 /* testingMap.png in Resources */ = {isa = PBXBuildFile; fileRef = 0A3D664A171AA09700569681 /* testingMap.png */; };
+		0A3D664D171AA09700569681 /* testingMap.txt in Resources */ = {isa = PBXBuildFile; fileRef = 0A3D664B171AA09700569681 /* testingMap.txt */; };
+		0A3D664F171AB90700569681 /* res1.png in Resources */ = {isa = PBXBuildFile; fileRef = 0A3D664E171AB90700569681 /* res1.png */; };
+		0A3D6651171AB90C00569681 /* res1.txt in Resources */ = {isa = PBXBuildFile; fileRef = 0A3D6650171AB90C00569681 /* res1.txt */; };
 		0A61F463170712DD008BDED1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A61F462170712DD008BDED1 /* UIKit.framework */; };
 		0A61F465170712DD008BDED1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A61F464170712DD008BDED1 /* Foundation.framework */; };
 		0A61F467170712DD008BDED1 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A61F466170712DD008BDED1 /* CoreGraphics.framework */; };
@@ -23,16 +28,21 @@
 		0A61F4841707138B008BDED1 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A61F4831707138B008BDED1 /* QuartzCore.framework */; };
 		0A61F4871707191E008BDED1 /* ESTools.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A61F4861707191E008BDED1 /* ESTools.m */; };
 		0A61F49A17072DCB008BDED1 /* ESNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A61F49917072DCB008BDED1 /* ESNode.m */; };
+		0A96DE50171ACF7800D6F1F0 /* ESPhysics.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A96DE4F171ACF7800D6F1F0 /* ESPhysics.m */; };
 		0AC8901017145A3E001FEF57 /* hero-packer.png in Resources */ = {isa = PBXBuildFile; fileRef = 0AC8900E17145A3E001FEF57 /* hero-packer.png */; };
 		0AC8901117145A3E001FEF57 /* hero-packer.txt in Resources */ = {isa = PBXBuildFile; fileRef = 0AC8900F17145A3E001FEF57 /* hero-packer.txt */; };
+		0AD3950817259ACB0002968A /* ESMarioGame.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AD3950717259ACB0002968A /* ESMarioGame.m */; };
 		0AD533521708752A00889E70 /* texture1.png in Resources */ = {isa = PBXBuildFile; fileRef = 0AD533511708752A00889E70 /* texture1.png */; };
-		0AE08B02170B0E29004840B1 /* tex1.png in Resources */ = {isa = PBXBuildFile; fileRef = 0AE08B00170B0E29004840B1 /* tex1.png */; };
-		0AE08B03170B0E29004840B1 /* tex1.txt in Resources */ = {isa = PBXBuildFile; fileRef = 0AE08B01170B0E29004840B1 /* tex1.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0A30B53717130BC700696647 /* spo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = spo.png; sourceTree = "<group>"; };
 		0A30B53817130BC700696647 /* spo.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = spo.txt; sourceTree = "<group>"; };
+		0A3D6647171A927E00569681 /* testingMap.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = testingMap.json; sourceTree = "<group>"; };
+		0A3D664A171AA09700569681 /* testingMap.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testingMap.png; sourceTree = "<group>"; };
+		0A3D664B171AA09700569681 /* testingMap.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = testingMap.txt; sourceTree = "<group>"; };
+		0A3D664E171AB90700569681 /* res1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = res1.png; sourceTree = "<group>"; };
+		0A3D6650171AB90C00569681 /* res1.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = res1.txt; sourceTree = "<group>"; };
 		0A61F45E170712DD008BDED1 /* ESNode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ESNode.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A61F462170712DD008BDED1 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		0A61F464170712DD008BDED1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -53,11 +63,13 @@
 		0A61F4861707191E008BDED1 /* ESTools.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ESTools.m; sourceTree = "<group>"; };
 		0A61F49817072DCB008BDED1 /* ESNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESNode.h; sourceTree = "<group>"; };
 		0A61F49917072DCB008BDED1 /* ESNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ESNode.m; sourceTree = "<group>"; };
+		0A96DE4E171ACF7800D6F1F0 /* ESPhysics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESPhysics.h; sourceTree = "<group>"; };
+		0A96DE4F171ACF7800D6F1F0 /* ESPhysics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ESPhysics.m; sourceTree = "<group>"; };
 		0AC8900E17145A3E001FEF57 /* hero-packer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "hero-packer.png"; sourceTree = "<group>"; };
 		0AC8900F17145A3E001FEF57 /* hero-packer.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "hero-packer.txt"; sourceTree = "<group>"; };
+		0AD3950617259ACB0002968A /* ESMarioGame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESMarioGame.h; sourceTree = "<group>"; };
+		0AD3950717259ACB0002968A /* ESMarioGame.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ESMarioGame.m; sourceTree = "<group>"; };
 		0AD533511708752A00889E70 /* texture1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = texture1.png; path = ESNode/texture1.png; sourceTree = "<group>"; };
-		0AE08B00170B0E29004840B1 /* tex1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tex1.png; sourceTree = "<group>"; };
-		0AE08B01170B0E29004840B1 /* tex1.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tex1.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,6 +129,10 @@
 				0A61F4861707191E008BDED1 /* ESTools.m */,
 				0A61F49817072DCB008BDED1 /* ESNode.h */,
 				0A61F49917072DCB008BDED1 /* ESNode.m */,
+				0A96DE4E171ACF7800D6F1F0 /* ESPhysics.h */,
+				0A96DE4F171ACF7800D6F1F0 /* ESPhysics.m */,
+				0AD3950617259ACB0002968A /* ESMarioGame.h */,
+				0AD3950717259ACB0002968A /* ESMarioGame.m */,
 				0A61F469170712DD008BDED1 /* Supporting Files */,
 			);
 			path = ESNode;
@@ -139,8 +155,11 @@
 		0AD533541708753100889E70 /* resources */ = {
 			isa = PBXGroup;
 			children = (
-				0AE08B00170B0E29004840B1 /* tex1.png */,
-				0AE08B01170B0E29004840B1 /* tex1.txt */,
+				0A3D6650171AB90C00569681 /* res1.txt */,
+				0A3D664E171AB90700569681 /* res1.png */,
+				0A3D664A171AA09700569681 /* testingMap.png */,
+				0A3D664B171AA09700569681 /* testingMap.txt */,
+				0A3D6647171A927E00569681 /* testingMap.json */,
 				0AD533511708752A00889E70 /* texture1.png */,
 				0A30B53717130BC700696647 /* spo.png */,
 				0A30B53817130BC700696647 /* spo.txt */,
@@ -206,12 +225,15 @@
 				0A61F477170712DD008BDED1 /* Default@2x.png in Resources */,
 				0A61F479170712DD008BDED1 /* Default-568h@2x.png in Resources */,
 				0AD533521708752A00889E70 /* texture1.png in Resources */,
-				0AE08B02170B0E29004840B1 /* tex1.png in Resources */,
-				0AE08B03170B0E29004840B1 /* tex1.txt in Resources */,
 				0A30B53917130BC700696647 /* spo.png in Resources */,
 				0A30B53A17130BC700696647 /* spo.txt in Resources */,
 				0AC8901017145A3E001FEF57 /* hero-packer.png in Resources */,
 				0AC8901117145A3E001FEF57 /* hero-packer.txt in Resources */,
+				0A3D6648171A927E00569681 /* testingMap.json in Resources */,
+				0A3D664C171AA09700569681 /* testingMap.png in Resources */,
+				0A3D664D171AA09700569681 /* testingMap.txt in Resources */,
+				0A3D664F171AB90700569681 /* res1.png in Resources */,
+				0A3D6651171AB90C00569681 /* res1.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -226,6 +248,8 @@
 				0A61F473170712DD008BDED1 /* AppDelegate.m in Sources */,
 				0A61F4871707191E008BDED1 /* ESTools.m in Sources */,
 				0A61F49A17072DCB008BDED1 /* ESNode.m in Sources */,
+				0A96DE50171ACF7800D6F1F0 /* ESPhysics.m in Sources */,
+				0AD3950817259ACB0002968A /* ESMarioGame.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -215,15 +215,23 @@ screenLandscape:(BOOL)landscape ;
 
 //=============================================================
 #pragma mark - ESSimpleSprite
+enum ESSimpleSpriteFlipType{
+    ESSimpleSpriteFlipTypeLeftRight ,
+    ESSimpleSpriteFlipTypeRightLeft 
+};
+typedef enum ESSimpleSpriteFlipType ESSimpleSpriteFlipType;
 @interface ESSimpleSprite:ESNode
 {
     esVertexP3C4T2 vertices[4] ;
     esTexture* estexture ;
+    ESSimpleSpriteFlipType flipType ;
 }
 @property(retain,nonatomic)esTexture* estexture ;
 -(id)initWithTag:(int)tag1 frame:(CGRect)frm texture:(esTexture*)estexture1 ;
 -(GLfloat)width ;
 -(GLfloat)height ;
+-(void)flip:(ESSimpleSpriteFlipType)ft ;
+
 @end
 
 //=============================================================
@@ -233,10 +241,14 @@ screenLandscape:(BOOL)landscape ;
     id tapTarget ;
     SEL tapAction ;
     BOOL hasTouchIn ;
+    id touchEventTarget ;
+    SEL touchBeginAction ;
+    SEL touchMoveAction ;
+    SEL touchEndAction ;
 }
 -(id)initWithTag:(int)tag1 frame:(CGRect)frm texture:(esTexture*)estexture1 target:(id)tar action:(SEL)act ;
 -(BOOL)isTouchInSide:(UITouch*)touch ;
-
+-(void)setTouchEventTarget:(id)tar begin:(SEL)bact move:(SEL)mact end:(SEL)eact ;
 @end
 
 //=============================================================
@@ -308,6 +320,25 @@ typedef enum eAnimationSpritesQuadAlign eAnimationSpritesQuadAlign ;
 -(void)playLoop ;
 @end
 
+//=============================================================
+#pragma mark - ESTileMap
+@interface ESTileMap:ESNode
+{
+    short tileWidthNumber , tileHeightNumber ;
+    short tileCellWidth , tileCellHeight ;
+    int validCellNumber ;
+    esVertexP3C4T2* vertices ;
+    GLushort*       indices ;
+    short* tileData ;
+    esAtlasTexture* tileAtlas ;
+}
+@property(readonly,nonatomic)short tileWidthNumber,tileHeightNumber ;
+@property(readonly,nonatomic)short tileCellWidth,tileCellHeight ;
+
+-(id)initWithTag:(int)tag1 resfile:(NSString*)resfile ;//xxx.png xxx.txt xxx.json
+-(short)cellDatax:(int)ix y:(int)iy ;
+-(short*)gatTileData ;
+@end
 
 
 

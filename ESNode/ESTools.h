@@ -11,6 +11,11 @@
 
 
 #define ESTOOLS_RELEASE(p) if(p){[p release];p=nil;}
+int esfDict2int(NSDictionary* dict,NSString* key) ;
+NSString* esfDict2String(NSDictionary* dict,NSString* key) ;
+int esfArray2int(NSArray* array,int index) ;
+NSString* esfArray2String(NSArray* array,int index) ;
+
 //=============================================================
 #pragma mark - GL program and shader
 

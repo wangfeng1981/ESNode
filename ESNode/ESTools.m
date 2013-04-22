@@ -8,6 +8,24 @@
 
 #import "ESTools.h"
 
+int esfDict2int(NSDictionary* dict,NSString* key)
+{
+    NSNumber* n = (NSNumber*)[dict objectForKey:key] ;
+    return n.intValue ;
+}
+NSString* esfDict2String(NSDictionary* dict,NSString* key)
+{
+    return (NSString*)[dict objectForKey:key] ;
+}
+int esfArray2int(NSArray* array,int index)
+{
+    NSNumber* n = (NSNumber*)[array objectAtIndex:index] ;
+    return n.intValue ;
+}
+NSString* esfArray2String(NSArray* array,int index)
+{
+    return (NSString*)[array objectAtIndex:index] ;
+}
 
 unsigned int ccNextPOT(unsigned int x)
 {
@@ -245,14 +263,18 @@ unsigned int ccNextPOT(unsigned int x)
 	self = [super init] ;
 	if( self )
 	{
-		CGImageRef textureImage=NULL;
-		CGContextRef textureContext=NULL;
-		GLubyte *textureData=NULL;
+		
 		GLuint textureID = -1;
-		unsigned int width = 0;
-		unsigned int height = 0;
         
+        GLKTextureInfo* texinfo =  [GLKTextureLoader textureWithContentsOfFile:[[NSBundle mainBundle] pathForResource:filename ofType:@""] options:nil error:nil] ;
+        textureID = texinfo.name ;
+        fullwidth = texinfo.width ;
+        fullheight = texinfo.height ;
 
+        /*
+         CGImageRef textureImage=NULL;
+         CGContextRef textureContext=NULL;
+         GLubyte *textureData=NULL;
         UIImage* image = [UIImage imageNamed:filename] ;
         textureImage = image.CGImage ;
         width = CGImageGetWidth(textureImage);
@@ -267,14 +289,7 @@ unsigned int ccNextPOT(unsigned int x)
         
         CGContextClearRect(textureContext, CGRectMake(0.0, 0.0, (float)width, (float)height)) ;
         CGContextDrawImage(textureContext, CGRectMake(0.0, 0.0, (float)width, (float)height), textureImage);
-        
-		/*if( esfOpenGLESVersionMajor() == 1 ) //used for ES1.0 20130402
-		{
-            glMatrixMode(GL_TEXTURE); //comment for ES2.0 20120820
-            glLoadIdentity() ;
-			glScalef(1, 1, 1);        //comment for ES2.0 20120820
-			glEnable(GL_TEXTURE_2D);// comment for ES2.0 20120820
-		}*/
+
 		glGenTextures(1, &textureID);
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -283,17 +298,12 @@ unsigned int ccNextPOT(unsigned int x)
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE) ;
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
 		
-        /* used for ES1.0 20130402
-        if( esfOpenGLESVersionMajor() == 1 )
-		{
-			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); //comment for ES2.0 20120820
-		}*/
 		
 		free(textureData);
 		textureData = NULL ;
 		if(textureContext) CGContextRelease(textureContext);
 		textureContext = NULL ;
-		textureImage = NULL ;
+		textureImage = NULL ;*/
 		textureid = textureID ;
 	}
 	return self ;
